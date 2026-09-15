@@ -1,0 +1,3 @@
+.claude-flow/
+.claude/*
+!.claude/launch.json
