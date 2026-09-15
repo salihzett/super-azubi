@@ -26,7 +26,7 @@ const STR = {
   de: {
     title: 'SUPER OSAMA', sub: 'Level 1 – Adlon Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart',
     score: 'PUNKTE', lives: 'LEBEN', gameover: 'GAME OVER', retry: 'LEERTASTE = NOCHMAL', win: 'FEIERABEND!',
-    winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: 'Der ruft alle 5 Minuten an…',
+    winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: 'Der ruft alle 5 Minuten an… 3x auf den Kopf springen!',
     start: 'Osama, IT-Azubi. Nur noch bis zum Aufzug!',
     colleague: ['Mein Drucker druckt nicht!', 'Kannst du mal kurz schauen?', 'Das Internet ist langsam!', 'Ich hab auf den Link geklickt…', 'Mein Outlook ist weg!', 'Nur ganz kurz!', 'Wo ist die Maus?',
       'Der Bildschirm ist schwarz!', 'Ich hab nichts gemacht!', 'Excel ist eingefroren!', 'Mein Passwort ist abgelaufen!', 'Kannst du mir Admin geben?', 'Das ging gestern noch!', 'Ich hab den Stecker gezogen…', 'Der Rechner macht Geräusche!', 'Wo ist die Any-Taste?', 'Ist das WLAN-Kabel kaputt?', 'Ich hab 47 Tabs offen. Zu viel?', 'Teams hört mich nicht!', 'Kann man das nicht schneller machen?', 'Mein Kaffee ist in der Tastatur!'],
@@ -40,7 +40,7 @@ const STR = {
   en: {
     title: 'SUPER OSAMA', sub: 'Level 1 – Adlon Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart',
     score: 'SCORE', lives: 'LIVES', gameover: 'GAME OVER', retry: 'SPACE = RETRY', win: 'SHIFT OVER!',
-    winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'He calls every 5 minutes…',
+    winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'He calls every 5 minutes… stomp his head 3x!',
     start: 'Osama, IT trainee. Just reach the elevator!',
     colleague: ['My printer won\'t print!', 'Can you take a quick look?', 'The internet is slow!', 'I clicked the link…', 'My Outlook is gone!', 'Just a second!', 'Where is the mouse?', 'The screen is black!', 'I didn\'t do anything!', 'Excel froze!', 'Can I have admin rights?', 'It worked yesterday!', 'Where is the Any key?', 'Is the WiFi cable broken?', 'Teams can\'t hear me!', 'My coffee is in the keyboard!'],
     guest: ['The WiFi is down!', 'My TV is black!', 'I need an adapter!', 'The phone is dead!', 'No Netflix in the room?!', 'My kids need 5G!', 'Only 200 channels?!', 'I pay 800 euros a night!', 'The safe ate my phone!', 'Where is USB-C?', 'I want to speak to the manager!'],
@@ -289,13 +289,17 @@ function updateBoss() {
   // "alle 5 Minuten" = alle 5 Sekunden: Anruf + Post-it-Salve
   if (--b.callT <= 0) {
     b.callT = 300; say(b, T().bossLines); SFX.ring(); b.bubbleT = 90;
-    for (let i = -1; i <= 1; i++) shots.push({ x: b.x + 15, y: b.y + 14, vx: b.dir * (1.2 + Math.abs(i) * 0.5) + i * 0.4, vy: -3.2 - Math.abs(i), r: 0 });
+    for (let i = -1; i <= 1; i++) shots.push({ x: b.x + 15, y: b.y + 14, vx: b.dir * (1.0 + Math.abs(i) * 0.4) + i * 0.3, vy: -3.0 - Math.abs(i) * 0.8, r: 0 });
   }
   if (overlap(player, b)) {
-    if (player.vy > 0 && player.y + player.h < b.y + b.h * 0.4 && b.inv === 0) {
-      b.hp--; b.inv = 60; player.vy = -4.5; state.score += 1000; SFX.hit(); state.shake = 6; puff(b.x + 15, b.y, '#fff', 10);
-      if (b.hp <= 0) { b.alive = false; state.bossDone = true; state.bossActive = false; state.score += 3000; puff(b.x + 15, b.y + 20, '#f8e060', 20); SFX.win(); }
-    } else hurtPlayer();
+    const fromAbove = player.vy > 0 && player.y + player.h < b.y + b.h * 0.5;
+    if (fromAbove) {
+      player.vy = -4.5; // immer abprallen, auch wenn Boss gerade unverwundbar
+      if (b.inv === 0) {
+        b.hp--; b.inv = 60; player.inv = Math.max(player.inv, 40); state.score += 1000; SFX.hit(); state.shake = 6; puff(b.x + 15, b.y, '#fff', 10);
+        if (b.hp <= 0) { b.alive = false; state.bossDone = true; state.bossActive = false; state.score += 3000; puff(b.x + 15, b.y + 20, '#f8e060', 20); SFX.win(); }
+      }
+    } else if (b.inv === 0) hurtPlayer(); // Boss blinkt = keine Gefahr
   }
 }
 
