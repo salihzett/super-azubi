@@ -1,6 +1,6 @@
 # Super Azubi
 
-HTML5 Jump'n'Run. Osama, IT-Azubi, muss durch die Adlon-Lobby bis zum Aufzug – vorbei an
+HTML5 Jump'n'Run. Ein IT-Azubi muss durch die Adlon-Lobby bis zum Aufzug – vorbei an
 Kollegen, Gästen und Herrn Pfefferkorn („Ich hab mein Passwort vergessen!“).
 
 `index.html` im Browser öffnen, fertig. Keine Abhängigkeiten.
