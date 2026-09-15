@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>Super Osama</title>
+<title>Super Azubi</title>
 <style>
   html,body{margin:0;height:100%;background:#0e0c14;overflow:hidden;touch-action:none;font-family:monospace}
   #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
@@ -29,7 +29,7 @@
 // Alle Texte hier. Sprache: ?lang=en, localStorage oder Taste L im Titel.
 const STR = {
   de: {
-    title: 'SUPER OSAMA', sub: 'Level 1 – Adlon Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart',
     score: 'PUNKTE', lives: 'LEBEN', gameover: 'GAME OVER', retry: 'LEERTASTE = NOCHMAL', win: 'FEIERABEND!',
     winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: '5x auf den Kopf springen! V = Blödsinn erzählen (verwirrt ihn)',
     start: 'Osama, IT-Azubi. Nur noch bis zum Aufzug!',
@@ -45,7 +45,7 @@ const STR = {
     osamaHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
-    title: 'SUPER OSAMA', sub: 'Level 1 – Adlon Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart',
     score: 'SCORE', lives: 'LIVES', gameover: 'GAME OVER', retry: 'SPACE = RETRY', win: 'SHIFT OVER!',
     winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'Stomp his head 5x! V = talk nonsense (confuses him)',
     start: 'Osama, IT trainee. Just reach the elevator!',
@@ -160,6 +160,7 @@ function mkEnemy(t, cx, cy) {
 const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: false, inv: 0, anim: 0, hitWall: false, bubble: '', bubbleT: 0, ringT: 0 };
 function resetState() {
   for (const k in keys) keys[k] = false; startPressed = false; nameForm.hidden = true;
+  refreshHS();
   state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0 };
 }
 function startLevel() {
@@ -252,15 +253,33 @@ function confuse() {
 function die() { state.mode = 'dead'; state.t = 0; startPressed = false; SFX.die(); if (state.score > 0) askName(); }
 // ───────────────────────── Bestenliste (localStorage, pro Browser) ─────────────────────────
 // ponytail: lokal gespeichert; für eine geteilte Liste über alle Spieler braucht es ein Backend.
-const HS_KEY = 'superosama_hs';
+const HS_KEY = 'superazubi_hs';
+// Supabase-Anbindung: URL + anon-Key eintragen, Tabelle 'scores' (siehe README). Leer = nur lokal.
+const SUPABASE = { url: '', key: '' };
+const sbHeaders = () => ({ apikey: SUPABASE.key, Authorization: `Bearer ${SUPABASE.key}`, 'Content-Type': 'application/json' });
+let hsCache = null; // zuletzt geladene Liste (remote oder lokal)
+async function refreshHS() {
+  hsCache = loadHS();
+  if (!SUPABASE.url) return;
+  try {
+    const r = await fetch(`${SUPABASE.url}/rest/v1/scores?select=name,score,time,win&order=score.desc,time.asc&limit=10`, { headers: sbHeaders() });
+    if (r.ok) hsCache = await r.json();
+  } catch {}
+}
+async function saveHSRemote(entry) {
+  if (!SUPABASE.url) return;
+  try { await fetch(`${SUPABASE.url}/rest/v1/scores`, { method: 'POST', headers: { ...sbHeaders(), Prefer: 'return=minimal' }, body: JSON.stringify(entry) }); } catch {}
+}
 const loadHS = () => { try { return JSON.parse(localStorage.getItem(HS_KEY)) || []; } catch { return []; } };
 function saveHS(name) {
-  const hs = loadHS(); hs.push({ name, score: state.score, time: Math.floor(state.time / 60), win: state.mode === 'win' });
+  const entry = { name, score: state.score, time: Math.floor(state.time / 60), win: state.mode === 'win' };
+  const hs = loadHS(); hs.push(entry);
   hs.sort((a, b) => b.score - a.score || a.time - b.time); localStorage.setItem(HS_KEY, JSON.stringify(hs.slice(0, 10)));
-  try { localStorage.setItem('superosama_name', name); } catch {}
+  saveHSRemote(entry).then(refreshHS);
+  try { localStorage.setItem('superazubi_name', name); } catch {}
 }
 const nameForm = document.getElementById('nameform'), nameInput = document.getElementById('name');
-function askName() { nameInput.value = localStorage.getItem('superosama_name') || ''; nameForm.hidden = false; setTimeout(() => nameInput.focus(), 50); }
+function askName() { nameInput.value = localStorage.getItem('superazubi_name') || ''; nameForm.hidden = false; setTimeout(() => nameInput.focus(), 50); }
 nameForm.addEventListener('submit', e => { e.preventDefault(); if (state.saved) return; const n = nameInput.value.trim().toUpperCase().slice(0, 12) || '???'; saveHS(n); nameForm.hidden = true; state.saved = true; });
 nameInput.addEventListener('keydown', e => e.stopPropagation()); // Tasten nicht ans Spiel durchreichen
 const fmtTime = f => { const sec = Math.floor(f / 60); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
@@ -442,7 +461,7 @@ function text(s, x, y, size = 8, col = '#fff', align = 'center') {
 }
 
 function drawHS(x, y, n = 7) {
-  const hs = loadHS().slice(0, n); if (!hs.length) return;
+  const hs = (hsCache || loadHS()).slice(0, n); if (!hs.length) return;
   R(x - 4, y - 9, 124, 8 + hs.length * 8, 'rgba(0,0,0,.55)'); text(T().best, x, y, 7, '#d8b040', 'left');
   hs.forEach((h, i) => text(`${i + 1}. ${h.name.padEnd(12)} ${String(h.score).padStart(6)} ${fmtTime(h.time * 60)}${h.win ? '' : '†'}`, x, y + 9 + i * 8, 6, i === 0 ? '#f8e060' : '#fff', 'left'));
 }
