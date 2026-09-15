@@ -256,7 +256,7 @@ function die() { state.mode = 'dead'; state.t = 0; startPressed = false; SFX.die
 // ponytail: lokal gespeichert; für eine geteilte Liste über alle Spieler braucht es ein Backend.
 const HS_KEY = 'superazubi_hs';
 // Supabase-Anbindung: URL + anon-Key eintragen, Tabelle 'scores' (siehe README). Leer = nur lokal.
-const SUPABASE = { url: '', key: '' };
+const SUPABASE = { url: 'https://zvxbfqvrbdswecxhqsff.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2eGJmcXZyYmRzd2VjeGhxc2ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTYxOTYsImV4cCI6MjEwNTA3MjE5Nn0.wIFF0LTZmqXapNlru2rKV6U4IM_xukmpxSM9y_m1avE' };
 const sbHeaders = () => ({ apikey: SUPABASE.key, Authorization: `Bearer ${SUPABASE.key}`, 'Content-Type': 'application/json' });
 let hsCache = null; // zuletzt geladene Liste (remote oder lokal)
 async function refreshHS() {
