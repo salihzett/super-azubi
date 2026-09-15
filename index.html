@@ -164,7 +164,7 @@ function startLevel() {
 }
 
 // ───────────────────────── Physik ─────────────────────────
-const GRAV = 0.25, JUMP = -5.3, SPEED = 1.85;
+const GRAV = 0.25, JUMP = -6.0, SPEED = 1.85; // Sprunghöhe 72px = 4,5 Tiles (Galerie-Simse in Reihe 6 erreichbar)
 // ponytail: AABB-gegen-Tiles, achsenweise. Reicht für 16px-Tiles; Swept-Collision erst bei vy > 16.
 function moveBody(b) {
   b.x += b.vx;
