@@ -325,7 +325,7 @@ function update() {
     return true;
   });
 
-  for (const en of enemies) updateEnemy(en, en.t === 'g' ? T().guest : T().colleague);
+  for (const en of enemies) en.t === 'g' ? updateGuest(en) : updateEnemy(en, T().colleague);
 
   // Boss-Trigger
   if (!state.bossActive && !state.bossDone && player.x > (BOSS_X - 4) * TILE) {
@@ -344,6 +344,18 @@ function update() {
   // Kamera – im Bosskampf fixiert
   const lock = (BOSS_X - 2) * TILE;
   state.cam = state.bossActive ? lock : Math.max(0, Math.min(player.x - W / 2 + 8, LEVEL_W * TILE - W));
+}
+// Statist: schlendert in eine Richtung durch die Lobby (hinter den Hindernissen), bleibt ab und zu stehen,
+// jeder dritte steht dauerhaft (z.B. am Tresen). Am Levelrand taucht er auf der anderen Seite wieder auf.
+function updateGuest(en) {
+  if (Math.abs(en.x - player.x) > W * 1.5) return;
+  if (en.pauseT === undefined) { en.pauseT = 0; en.walkT = 200 + Math.random() * 400; en.dir = Math.random() < 0.5 ? -1 : 1; en.stand = Math.random() < 0.34; en.y = FLOOR * TILE - en.h; }
+  if (en.stand) { en.vx = 0; }
+  else if (en.pauseT > 0) { en.pauseT--; en.vx = 0; }
+  else { en.vx = en.dir * 0.25; en.x += en.vx; en.anim++; if (--en.walkT <= 0) { en.pauseT = 120 + Math.random() * 240; en.walkT = 200 + Math.random() * 400; } }
+  if (en.x < -40) en.x = LEVEL_W * TILE + 20; if (en.x > LEVEL_W * TILE + 40) en.x = -20;
+  if (--en.sayT <= 0) { say(en, T().guest); en.sayT = 500 + Math.random() * 400; }
+  if (en.bubbleT > 0) en.bubbleT--;
 }
 function updateEnemy(en, lines) {
   if (!en.alive) { en.deadT++; return; }
@@ -492,7 +504,7 @@ function render() {
   }
   for (const en of enemies.filter(e => e.t === 'g')) { // Statisten zuerst = hinter allem
     if (Math.abs(en.x - state.cam - W / 2) > W) continue;
-    ctx.globalAlpha = 0.75; drawSprite(en.spr, { ...en, x: en.x - state.cam }, walkFrame(en)); ctx.globalAlpha = 1;
+    ctx.globalAlpha = 0.75; drawSprite(en.spr, { ...en, x: en.x - state.cam }, en.vx ? walkFrame(en) : 0); ctx.globalAlpha = 1;
     if (en.bubbleT > 0) bubble(en.bubble, en.x - state.cam + 7, en.y - 2);
   }
   for (const en of enemies) {
