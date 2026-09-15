@@ -138,7 +138,11 @@ function buildLevel() {
   boss = mkEnemy('B', BOSS_X + 12, 9);
 }
 const tileAt = (px, py) => { const cx = Math.floor(px / TILE), cy = Math.floor(py / TILE); if (cx < 0 || cx >= LEVEL_W) return '#'; if (cy < 0 || cy >= ROWS) return '.'; return map[cy][cx]; };
-const isSolid = (px, py) => { const t = tileAt(px, py); return SOLID.has(t) && (t !== '|' || state.bossActive || state.bossDone); };
+const isSolid = (px, py, fromAbove) => {
+  const t = tileAt(px, py);
+  if (t === '-') return !!fromAbove; // Galerie-Sims: nur beim Fallen von oben fest
+  return SOLID.has(t) && (t !== '|' || state.bossActive || state.bossDone);
+};
 
 // ───────────────────────── Entities ─────────────────────────
 function mkEnemy(t, cx, cy) {
@@ -160,7 +164,7 @@ function startLevel() {
 }
 
 // ───────────────────────── Physik ─────────────────────────
-const GRAV = 0.25, JUMP = -5.3, SPEED = 1.7;
+const GRAV = 0.25, JUMP = -5.3, SPEED = 1.85;
 // ponytail: AABB-gegen-Tiles, achsenweise. Reicht für 16px-Tiles; Swept-Collision erst bei vy > 16.
 function moveBody(b) {
   b.x += b.vx;
@@ -170,9 +174,10 @@ function moveBody(b) {
     if (b.vx < 0 && isSolid(l, py)) { b.x = (Math.floor(l / TILE) + 1) * TILE - b.ox; b.hitWall = true; }
   }
   b.vy = Math.min(b.vy + GRAV, 6); b.y += b.vy; b.ground = false;
-  const l2 = b.x + b.ox + 1, r2 = b.x + b.ox + b.w - 2;
+  const l2 = b.x + b.ox + 1, r2 = b.x + b.ox + b.w - 2, prevBottom = b.y + b.h - b.vy;
   for (const px of [l2, r2]) {
-    if (b.vy > 0 && isSolid(px, b.y + b.h)) { b.y = Math.floor((b.y + b.h) / TILE) * TILE - b.h; b.vy = 0; b.ground = true; }
+    const bottom = b.y + b.h, landedOnLedge = prevBottom <= Math.floor(bottom / TILE) * TILE;
+    if (b.vy > 0 && isSolid(px, bottom, landedOnLedge)) { b.y = Math.floor((b.y + b.h) / TILE) * TILE - b.h; b.vy = 0; b.ground = true; }
     if (b.vy < 0 && isSolid(px, b.y)) { b.y = (Math.floor(b.y / TILE) + 1) * TILE; b.vy = 0; }
   }
 }
@@ -273,7 +278,7 @@ function update() {
 
   // Pickups
   pickups = pickups.filter(p => {
-    if (Math.abs(p.x - player.x - 8) < 10 && Math.abs(p.y - player.y - 11) < 14) {
+    if (overlap(player, { x: p.x - 2, y: p.y - 2, w: 12, h: 12, ox: 0 })) {
       if (p.t === 'o') { state.score += 100; SFX.coin(); } else { state.lives++; state.score += 500; SFX.life(); }
       puff(p.x + 4, p.y + 4, '#d8b040'); return false;
     }
@@ -305,7 +310,7 @@ function updateEnemy(en, lines) {
   if (Math.abs(en.x - player.x) > W) return; // ponytail: nur Gegner in Bildschirmnähe ticken
   en.vx = en.dir * (en.t === 'g' ? 0.3 : 0.45); en.hitWall = false;
   const ahead = en.x + en.ox + (en.dir > 0 ? en.w + 1 : -1);
-  if (en.ground && !isSolid(ahead, en.y + en.h + 1)) en.dir *= -1; // an Kanten umdrehen
+  if (en.ground && !isSolid(ahead, en.y + en.h + 1, true)) en.dir *= -1; // an Kanten umdrehen
   moveBody(en);
   if (en.hitWall) en.dir *= -1;
   en.anim++;
