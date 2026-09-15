@@ -35,8 +35,7 @@ const STR = {
     start: 'Schichtbeginn, Azubi. Nur noch bis zum Aufzug!',
     colleague: ['Mein Drucker druckt nicht!', 'Kannst du mal kurz schauen?', 'Das Internet ist langsam!', 'Ich hab auf den Link geklickt…', 'Mein Outlook ist weg!', 'Nur ganz kurz!', 'Wo ist die Maus?',
       'Der Bildschirm ist schwarz!', 'Ich hab nichts gemacht!', 'Excel ist eingefroren!', 'Mein Passwort ist abgelaufen!', 'Kannst du mir Admin geben?', 'Das ging gestern noch!', 'Ich hab den Stecker gezogen…', 'Der Rechner macht Geräusche!', 'Wo ist die Any-Taste?', 'Ist das WLAN-Kabel kaputt?', 'Ich hab 47 Tabs offen. Zu viel?', 'Teams hört mich nicht!', 'Kann man das nicht schneller machen?', 'Mein Kaffee ist in der Tastatur!', 'Samfex-Auftrag ist da!', 'Die Telefone funktionieren nicht!', 'Akku tauschen, bitte!', 'Drucker geht nicht!', 'Noch ein Samfex-Auftrag!', 'Das Telefon in 412 ist tot!'],
-    guest: ['Das WLAN geht nicht!', 'Mein Sat-TV ist schwarz!', 'Ich brauche einen Adapter!', 'Das Telefon ist tot!', 'Kein Netflix im Zimmer?!',
-      'Ist das WLAN-Passwort das Hotel?', 'Meine Kinder brauchen 5G!', 'Warum nur 200 Kanäle?!', 'Ich zahle 800 Euro die Nacht!', 'Mein iPad findet den Fernseher nicht!', 'Der Safe hat mein Handy!', 'Wo ist USB-C?', 'Der Aufzug ist zu langsam!', 'Mein Zimmer hat kein Bitcoin!', 'Ich will mit dem Manager reden!'],
+    guest: ['Schönes Hotel!', 'Wo ist die Bar?', 'Der Kronleuchter ist riesig!', 'Ist das Brandenburger Tor da drüben?', 'Ein Foto, bitte!', 'Unser Zimmer hat Blick auf den Pariser Platz!', 'Wann gibt es Frühstück?', 'Mein Koffer wiegt eine Tonne.', 'Ich such den Elefantenbrunnen.', 'Ist hier WLAN? Egal, Urlaub!'],
     bossLines: ['Ich hab mein Passwort vergessen!', 'Azubi! AZUBI!', 'Ist es 1234?', 'Warum muss ich mich anmelden?', 'Nur ein neues Passwort, schnell!',
       'Passwort123 geht nicht mehr!', 'Ich hab\'s auf einen Zettel geschrieben!', 'Kannst du mir die Mails vorlesen?', 'Groß- oder Kleinschreibung?!', 'Ich sperr mich schon wieder aus!', 'Zwei-Faktor? Ich hab nur ein Handy!', 'Das Ticket ist DRINGEND!!!'],
     azubiStomp: ['Ticket geschlossen!', 'Aus- und wieder einschalten.', 'Layer-8-Problem.', 'Steht im Wiki!', 'Neustart hilft immer.', 'Kein Backup, kein Mitleid.', 'Bitte per Ticket.', 'Hab ich gefixt.', 'Das ist kein Bug, das ist ein Feature.', 'Cache geleert!', 'Nächster!'],
@@ -50,7 +49,7 @@ const STR = {
     winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'Stomp his head 5x! V = talk nonsense (confuses him)',
     start: 'Shift starts, trainee. Just reach the elevator!',
     colleague: ['My printer won\'t print!', 'Can you take a quick look?', 'The internet is slow!', 'I clicked the link…', 'My Outlook is gone!', 'Just a second!', 'Where is the mouse?', 'The screen is black!', 'I didn\'t do anything!', 'Excel froze!', 'Can I have admin rights?', 'It worked yesterday!', 'Where is the Any key?', 'Is the WiFi cable broken?', 'Teams can\'t hear me!', 'My coffee is in the keyboard!'],
-    guest: ['The WiFi is down!', 'My TV is black!', 'I need an adapter!', 'The phone is dead!', 'No Netflix in the room?!', 'My kids need 5G!', 'Only 200 channels?!', 'I pay 800 euros a night!', 'The safe ate my phone!', 'Where is USB-C?', 'I want to speak to the manager!'],
+    guest: ['Lovely hotel!', 'Where is the bar?', 'That chandelier is huge!', 'Is that the Brandenburg Gate?', 'One photo, please!', 'When is breakfast?', 'My suitcase weighs a ton.', 'Looking for the elephant fountain.'],
     bossLines: ['I forgot my password!', 'Azubi! AZUBI!', 'Is it 1234?', 'Why do I have to log in?', 'Just a new password, quick!', 'Password123 stopped working!', 'I wrote it on a sticky note!', 'Upper or lower case?!', 'Two-factor? I only have one phone!', 'This ticket is URGENT!!!'],
     azubiStomp: ['Ticket closed!', 'Turn it off and on again.', 'Layer 8 problem.', 'It\'s in the wiki!', 'Reboot fixes everything.', 'No backup, no mercy.', 'Please open a ticket.', 'Not a bug, a feature.', 'Cache cleared!', 'Next!'],
     confuse: ['Have you tried DNS over fax?', 'The password is password, backwards, in binary.', 'I need to reboot the cloud cable first.', 'Your ticket got escalated to Narnia.', 'The server has the Monday blues.', 'The WiFi is vegan today.'],
@@ -78,7 +77,7 @@ const SHEETS = {
 };
 const SPR = {};
 for (const [k, s] of Object.entries(SHEETS)) { const img = new Image(); img.src = s.src; SPR[k] = { ...s, img }; }
-const ENEMY_TYPES = { e: ['kollege', 'kollegin'], g: ['gast1', 'gast2', 'gast3'] };
+const ENEMY_TYPES = { e: ['kollege', 'kollegin'], g: ['gast1', 'gast2', 'gast3'] }; // g = Statisten (keine Interaktion)
 
 // ───────────────────────── Level ─────────────────────────
 const TILE = 16, W = 320, H = 176, ROWS = 11, FLOOR = 10;
@@ -88,19 +87,19 @@ const LEVEL_W = 356, BOSS_X = 330, EXIT_X = 346;
 const PLACE = [
   ['K',10],['K',11],['K',11,8],['o',12,7],['o',13,7],['e',18],
   ['C',24],['C',25],['o',25,7],
-  ['=',30,8,7],['o',31,7],['o',32,7],['o',34,7],['o',35,7],['g',33,7],
+  ['=',30,8,7],['o',31,7],['o',32,7],['o',34,7],['o',35,7],['e',33,7],
   ['N',40],['N',41],['N',42],['o',41,7],['e',48],
   ['S',54],['S',54,8],['S',55],['o',54,6],
   ['~',60,10,3],
   ['T',68],['e',72],['T',76],['o',69,7],['o',71,7],['o',73,7],['o',75,7],
-  ['W',82],['W',83],['o',82,7],['o',83,7],['g',88],
+  ['W',82],['W',83],['o',82,7],['o',83,7],['e',88],
   ['C',90],['C',90,8],['k',90,6],
   ['N',96],['S',97],['S',97,8],['K',98],['K',98,8],['K',98,7],['o',97,6],['o',98,5],
   ['e',104],['e',108],
-  ['K',110],['=',112,7,7],['o',113,6],['o',114,6],['o',116,6],['o',117,6],['g',115,6],
+  ['K',110],['=',112,7,7],['o',113,6],['o',114,6],['o',116,6],['o',117,6],['e',115,6],
   ['~',124,10,3],
   ['T',130],['K',132],['K',132,8],['C',134],['o',132,6],
-  ['e',138],['g',142],
+  ['e',138],['e',142],
   ['N',146],['N',147],['S',150],['S',150,8],['K',154],['K',154,8],['K',154,7],['o',155,5],['o',151,6],
   ['e',160],
   // obere Ebene (Galerie-Simse '-'), erreichbar mit 3 Tiles Sprunghöhe
@@ -109,23 +108,25 @@ const PLACE = [
   ['-',62,6,4],['o',63,5],['o',64,5],
   ['-',100,5,5],['o',101,4],['e',102,4],['o',104,4],
   ['-',120,4,3],['o',121,3],
-  ['-',140,6,4],['g',142,5],['o',141,5],
+  ['-',140,6,4],['e',142,5],['o',141,5],
   // zweite Hälfte
   ['K',168],['K',169],['K',169,8],['o',170,6],['e',175],
   ['-',178,6,5],['o',179,5],['o',181,5],['-',185,3,4],['o',186,2],['o',187,2],['k',188,2],
-  ['C',192],['C',193],['C',193,8],['S',194],['g',200],['e',204],
+  ['C',192],['C',193],['C',193,8],['S',194],['e',200],['e',204],
   ['~',208,10,3],['-',207,6,5],['o',208,5],['o',210,5],
   ['T',214],['W',216],['W',217],['o',216,7],['o',217,7],
-  ['K',221],['=',222,7,8],['g',225,6],['o',223,6],['o',226,6],['o',228,6],
+  ['K',221],['=',222,7,8],['e',225,6],['o',223,6],['o',226,6],['o',228,6],
   ['-',232,4,4],['o',233,3],['e',234,3],['o',235,3],
   ['N',240],['N',241],['N',242],['N',243],['o',241,7],['o',242,7],
-  ['e',248],['e',252],['g',256],
+  ['e',248],['e',252],['e',256],
   ['S',260],['S',260,8],['S',260,7],['S',261],['S',261,8],['S',262],['-',264,5,4],['o',265,4],['o',266,4],
   ['~',272,10,3],
   ['K',278],['K',278,8],['C',280],['T',282],['e',286],
-  ['-',290,6,6],['g',292,5],['o',291,5],['o',294,5],['-',298,3,4],['o',299,2],['o',300,2],['o',301,2],
-  ['e',305],['e',310],['g',315],
+  ['-',290,6,6],['e',292,5],['o',291,5],['o',294,5],['-',298,3,4],['o',299,2],['o',300,2],['o',301,2],
+  ['e',305],['e',310],['e',315],
   ['K',320],['K',320,8],['K',321],
+  // Gäste (Statisten, laufen nur herum)
+  ['g',6],['g',36],['g',66],['g',94],['g',128],['g',158],['g',186],['g',218],['g',246],['g',284],['g',312],
   ['|',BOSS_X - 2],
 ];
 let map, enemies, pickups, boss, shots = [], particles = [], state;
@@ -347,15 +348,15 @@ function update() {
 function updateEnemy(en, lines) {
   if (!en.alive) { en.deadT++; return; }
   if (Math.abs(en.x - player.x) > W) return; // ponytail: nur Gegner in Bildschirmnähe ticken
-  en.vx = en.dir * (en.t === 'g' ? 0.3 : 0.45); en.hitWall = false;
+  en.vx = en.dir * (en.t === 'g' ? 0.2 : 0.45); en.hitWall = false;
   const ahead = en.x + en.ox + (en.dir > 0 ? en.w + 1 : -1);
   if (en.ground && !isSolid(ahead, en.y + en.h + 1, true)) en.dir *= -1; // an Kanten umdrehen
   moveBody(en);
   if (en.hitWall) en.dir *= -1;
   en.anim++;
-  if (--en.sayT <= 0) { say(en, lines); en.sayT = 150 + Math.random() * 150; }
+  if (--en.sayT <= 0) { say(en, lines); en.sayT = (en.t === 'g' ? 400 : 150) + Math.random() * 200; }
   if (en.bubbleT > 0) en.bubbleT--;
-  if (overlap(player, en)) {
+  if (en.t !== 'g' && overlap(player, en)) { // Gäste: nur Deko
     if (player.vy > 0 && player.y + player.h < en.y + en.h * 0.45) {
       en.alive = false; player.vy = -4; state.score += 200; SFX.stomp(); puff(en.x + 7, en.y + 16, '#fff'); say(player, T().azubiStomp);
     } else hurtPlayer();
@@ -415,8 +416,13 @@ function drawTile(t, x, y, cx) {
     case 'T': // Telefon
       R(x + 2, y + 8, 12, 7, '#e8e0d0'); R(x + 1, y + 4, 14, 3, '#2a2a30'); R(x + 1, y + 6, 2, 3, '#2a2a30'); R(x + 13, y + 6, 2, 3, '#2a2a30');
       for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) R(x + 5 + i * 3, y + 10 + j * 2, 2, 1, '#666'); break;
-    case '~': { // Elefantenbrunnen
-      R(x, y, 16, 16, '#3a6ac0'); R(x, y + 2, 16, 1, '#8ac0f0'); const ph = ((state.t >> 3) + cx) % 4; R(x + ph * 4, y + 4, 4, 1, '#a0d0ff'); R(x, y, 16, 1, '#6a6a6a'); break; }
+    case '~': { // Elefantenbrunnen: Steinbecken, Wasser, Fontäne + Elefant in der Mitte
+      R(x, y + 3, 16, 13, '#2c5aa8'); R(x, y + 3, 16, 1, '#8ac0f0'); const ph = ((state.t >> 3) + cx) % 4; R(x + ph * 4, y + 6, 4, 1, '#a0d0ff'); R(x + ((ph + 2) % 4) * 4, y + 10, 3, 1, '#7ab0e8');
+      R(x, y, 16, 3, '#9a9a94'); R(x, y, 16, 1, '#c8c8c0'); // Beckenrand
+      const left = tileAt(x + state.cam - 1, y) !== '~', right = tileAt(x + state.cam + 16, y) !== '~';
+      if (left) R(x, y - 6, 3, 9, '#8a8a84'); if (right) R(x + 13, y - 6, 3, 9, '#8a8a84'); // Steinpfosten außen
+      if (!left && !right) { const h = 22 + ((state.t >> 2) % 3); R(x + 7, y - h, 2, h, '#bfe0ff'); R(x + 5, y - h - 2, 6, 2, '#e8f4ff'); R(x + 4, y - 8, 8, 5, '#7a7a74'); R(x + 3, y - 10, 4, 3, '#7a7a74'); R(x + 1, y - 7, 2, 4, '#7a7a74'); }
+      break; }
     case '-': // Galerie-Sims (Marmor, Goldkante, Geländer)
       R(x, y + 4, 16, 5, '#ece4d4'); R(x, y + 4, 16, 1, '#d8b040'); R(x, y + 8, 16, 1, '#b8ae9e'); R(x + 2, y, 1, 4, '#d8b040'); R(x + 9, y, 1, 4, '#d8b040'); R(x, y, 16, 1, '#d8b040'); break;
     case '|': if (state.bossActive || state.bossDone) { R(x + 6, y, 4, 16, '#8a2a2a'); R(x + 7, y, 2, 16, '#c04040'); } break; // Samtkordel
@@ -484,8 +490,13 @@ function render() {
     if (p.t === 'o') { R(x, y + 2, 7, 6, '#fff'); R(x + 1, y + 2, 5, 1, '#5a3a22'); R(x + 7, y + 3, 2, 3, '#fff'); if (state.t % 30 < 15) R(x + 2, y - 1, 1, 2, '#ccc'); }
     else { R(x - 1, y + 1, 10, 7, '#d8b040'); R(x, y + 2, 3, 2, '#333'); R(x + 5, y + 5, 4, 1, '#fff'); }
   }
-  for (const en of enemies) {
+  for (const en of enemies.filter(e => e.t === 'g')) { // Statisten zuerst = hinter allem
     if (Math.abs(en.x - state.cam - W / 2) > W) continue;
+    ctx.globalAlpha = 0.75; drawSprite(en.spr, { ...en, x: en.x - state.cam }, walkFrame(en)); ctx.globalAlpha = 1;
+    if (en.bubbleT > 0) bubble(en.bubble, en.x - state.cam + 7, en.y - 2);
+  }
+  for (const en of enemies) {
+    if (en.t === 'g' || Math.abs(en.x - state.cam - W / 2) > W) continue;
     if (!en.alive) { if (en.deadT < 25) drawSprite(en.spr, { ...en, x: en.x - state.cam, y: en.y + en.h }, 0, true); continue; } // kurz kopfüber
     drawSprite(en.spr, { ...en, x: en.x - state.cam }, en.bubbleT > 0 ? 3 : walkFrame(en));
     if (en.bubbleT > 0) bubble(en.bubble, en.x - state.cam + 7, en.y - 2);
