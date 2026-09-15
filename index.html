@@ -13,10 +13,15 @@
     background:rgba(216,176,64,.15);pointer-events:auto;color:#d8b040;font:bold 5vw/1 monospace;display:flex;align-items:center;justify-content:center;user-select:none}
   #tl{left:4vw}#tr{left:24vw}#tj{right:4vw}#tv{right:24vw}
   @media(pointer:coarse){#touch{display:block}}
+  #nameform{position:fixed;left:50%;top:60%;transform:translate(-50%,-50%);background:#1a1a22;border:2px solid #d8b040;padding:12px 16px;color:#d8b040;font:bold 16px monospace;display:flex;gap:8px;align-items:center}
+  #nameform[hidden]{display:none}
+  #nameform input{font:bold 16px monospace;width:9em;background:#000;color:#fff;border:1px solid #d8b040;padding:4px 6px;text-transform:uppercase}
+  #nameform button{font:bold 16px monospace;background:#d8b040;border:0;padding:5px 10px;cursor:pointer}
 </style>
 </head>
 <body>
 <div id="wrap"><canvas id="c" width="960" height="528"></canvas></div>
+<form id="nameform" hidden><label>NAME <input id="name" maxlength="12" autocomplete="off" placeholder="Nickname"></label><button>OK</button></form>
 <div id="touch"><div id="tl">◀</div><div id="tr">▶</div><div id="tj">▲</div><div id="tv">V</div></div>
 <script>
 'use strict';
@@ -36,7 +41,7 @@ const STR = {
       'Passwort123 geht nicht mehr!', 'Ich hab\'s auf einen Zettel geschrieben!', 'Kannst du mir die Mails vorlesen?', 'Groß- oder Kleinschreibung?!', 'Ich sperr mich schon wieder aus!', 'Zwei-Faktor? Ich hab nur ein Handy!', 'Das Ticket ist DRINGEND!!!'],
     osamaStomp: ['Ticket geschlossen!', 'Aus- und wieder einschalten.', 'Layer-8-Problem.', 'Steht im Wiki!', 'Neustart hilft immer.', 'Kein Backup, kein Mitleid.', 'Bitte per Ticket.', 'Hab ich gefixt.', 'Das ist kein Bug, das ist ein Feature.', 'Cache geleert!', 'Nächster!'],
     confuse: ['Hast du DNS schon mal per Fax probiert?', 'Das Passwort ist Passwort, rückwärts, in Binär.', 'Ich muss erst das Cloud-Kabel neu starten.', 'Dein Ticket wurde nach Narnia eskaliert.', 'Der Server hat Montagsblues.', 'Das WLAN ist heute vegan.', 'Wir migrieren auf Fax 2.0.', 'Dein Rechner braucht mehr RGB.'],
-    confuseHud: 'V = VERWIRREN', confused: '???',
+    confuseHud: 'V = VERWIRREN', confused: '???', time: 'ZEIT', timeBonus: 'ZEITBONUS', best: 'BESTENLISTE', enterName: 'Name eingeben!',
     osamaHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
@@ -49,7 +54,7 @@ const STR = {
     bossLines: ['I forgot my password!', 'Osama! OSAMA!', 'Is it 1234?', 'Why do I have to log in?', 'Just a new password, quick!', 'Password123 stopped working!', 'I wrote it on a sticky note!', 'Upper or lower case?!', 'Two-factor? I only have one phone!', 'This ticket is URGENT!!!'],
     osamaStomp: ['Ticket closed!', 'Turn it off and on again.', 'Layer 8 problem.', 'It\'s in the wiki!', 'Reboot fixes everything.', 'No backup, no mercy.', 'Please open a ticket.', 'Not a bug, a feature.', 'Cache cleared!', 'Next!'],
     confuse: ['Have you tried DNS over fax?', 'The password is password, backwards, in binary.', 'I need to reboot the cloud cable first.', 'Your ticket got escalated to Narnia.', 'The server has the Monday blues.', 'The WiFi is vegan today.'],
-    confuseHud: 'V = CONFUSE', confused: '???',
+    confuseHud: 'V = CONFUSE', confused: '???', time: 'TIME', timeBonus: 'TIME BONUS', best: 'HIGH SCORES', enterName: 'Enter your name!',
     osamaHurt: ['I\'m just a trainee!', 'Not my ticket!', 'That\'s second level!', 'I\'m on lunch break!', 'Ask the helpdesk!'],
   },
 };
@@ -154,8 +159,8 @@ function mkEnemy(t, cx, cy) {
 }
 const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: false, inv: 0, anim: 0, hitWall: false, bubble: '', bubbleT: 0, ringT: 0 };
 function resetState() {
-  for (const k in keys) keys[k] = false; startPressed = false;
-  state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0 };
+  for (const k in keys) keys[k] = false; startPressed = false; nameForm.hidden = true;
+  state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0 };
 }
 function startLevel() {
   buildLevel(); shots = []; particles = [];
@@ -244,18 +249,33 @@ function confuse() {
   boss.confused = 300; boss.bubble = T().confused; boss.bubbleT = 300; state.confuseCd = 900;
   [500, 400, 300].forEach((f, i) => setTimeout(() => beep(f, 0.15, 'triangle', 0.06), i * 100));
 }
-function die() { state.mode = 'dead'; state.t = 0; startPressed = false; SFX.die(); }
+function die() { state.mode = 'dead'; state.t = 0; startPressed = false; SFX.die(); if (state.score > 0) askName(); }
+// ───────────────────────── Bestenliste (localStorage, pro Browser) ─────────────────────────
+// ponytail: lokal gespeichert; für eine geteilte Liste über alle Spieler braucht es ein Backend.
+const HS_KEY = 'superosama_hs';
+const loadHS = () => { try { return JSON.parse(localStorage.getItem(HS_KEY)) || []; } catch { return []; } };
+function saveHS(name) {
+  const hs = loadHS(); hs.push({ name, score: state.score, time: Math.floor(state.time / 60), win: state.mode === 'win' });
+  hs.sort((a, b) => b.score - a.score || a.time - b.time); localStorage.setItem(HS_KEY, JSON.stringify(hs.slice(0, 10)));
+  try { localStorage.setItem('superosama_name', name); } catch {}
+}
+const nameForm = document.getElementById('nameform'), nameInput = document.getElementById('name');
+function askName() { nameInput.value = localStorage.getItem('superosama_name') || ''; nameForm.hidden = false; setTimeout(() => nameInput.focus(), 50); }
+nameForm.addEventListener('submit', e => { e.preventDefault(); if (state.saved) return; const n = nameInput.value.trim().toUpperCase().slice(0, 12) || '???'; saveHS(n); nameForm.hidden = true; state.saved = true; });
+nameInput.addEventListener('keydown', e => e.stopPropagation()); // Tasten nicht ans Spiel durchreichen
+const fmtTime = f => { const sec = Math.floor(f / 60); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
 function puff(x, y, col, n = 6) { for (let i = 0; i < n; i++) particles.push({ x, y, vx: (Math.random() - .5) * 2, vy: -Math.random() * 2, t: 30, col }); }
 
 function update() {
   state.t++;
   if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; startLevel(); } startPressed = false; return; }
-  if (state.mode === 'dead') { if (state.t > 60 && startPressed) resetState(); startPressed = false; return; }
-  if (state.mode === 'win') { if (state.t > 120 && startPressed) resetState(); startPressed = false; return; }
+  if (state.mode === 'dead') { if (state.t > 60 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
+  if (state.mode === 'win') { if (state.t > 120 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
   startPressed = false;
   if (state.msgT > 0) state.msgT--;
   if (state.shake > 0) state.shake--;
   if (state.confuseCd > 0) state.confuseCd--;
+  state.time++;
 
   // Spieler
   player.vx = (keys.left ? -SPEED : 0) + (keys.right ? SPEED : 0);
@@ -299,7 +319,7 @@ function update() {
   });
   particles = particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; return --p.t > 0; });
 
-  if (state.bossDone && player.x > EXIT_X * TILE) { state.mode = 'win'; state.t = 0; startPressed = false; SFX.win(); }
+  if (state.bossDone && player.x > EXIT_X * TILE) { state.mode = 'win'; state.t = 0; startPressed = false; state.bonus = Math.max(0, 300 - Math.floor(state.time / 60)) * 10; state.score += state.bonus; SFX.win(); askName(); }
 
   // Kamera – im Bosskampf fixiert
   const lock = (BOSS_X - 2) * TILE;
@@ -421,6 +441,11 @@ function text(s, x, y, size = 8, col = '#fff', align = 'center') {
   ctx.fillStyle = '#000'; ctx.fillText(s, x + 1, y + 1); ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.textAlign = 'left';
 }
 
+function drawHS(x, y, n = 7) {
+  const hs = loadHS().slice(0, n); if (!hs.length) return;
+  R(x - 4, y - 9, 124, 8 + hs.length * 8, 'rgba(0,0,0,.55)'); text(T().best, x, y, 7, '#d8b040', 'left');
+  hs.forEach((h, i) => text(`${i + 1}. ${h.name.padEnd(12)} ${String(h.score).padStart(6)} ${fmtTime(h.time * 60)}${h.win ? '' : '†'}`, x, y + 9 + i * 8, 6, i === 0 ? '#f8e060' : '#fff', 'left'));
+}
 function render() {
   ctx.setTransform(RS, 0, 0, RS, 0, 0);
   ctx.save();
@@ -431,7 +456,7 @@ function render() {
     ctx.save(); ctx.translate(W / 2, FLOOR * TILE); ctx.scale(2 / RS, 2 / RS); ctx.drawImage(SPR.osama.img, 0, 0, SPR.osama.fw, SPR.osama.fh, -SPR.osama.fw / 2, -SPR.osama.fh, SPR.osama.fw, SPR.osama.fh); ctx.restore();
     text(T().title, W / 2, 44, 16, '#d8b040'); text(T().sub, W / 2, 60, 8);
     if (state.t % 60 < 40) text(T().press, W / 2, 150, 8);
-    text(T().lang, W / 2, 170, 6, '#555'); ctx.restore(); return;
+    text(T().lang, W / 2, 170, 6, '#555'); drawHS(196, 92, 5); ctx.restore(); return;
   }
   const c0 = Math.floor(state.cam / TILE), c1 = c0 + W / TILE + 1;
   for (let cy = 0; cy < ROWS; cy++) for (let cx = c0; cx <= c1 && cx < LEVEL_W; cx++) { const t = map[cy][cx]; if (t !== '.') drawTile(t, cx * TILE - state.cam, cy * TILE, cx); }
@@ -462,11 +487,12 @@ function render() {
   R(0, 0, W, 12, 'rgba(0,0,0,.55)');
   text(`${T().score} ${String(state.score).padStart(6, '0')}`, 4, 9, 7, '#fff', 'left');
   text(`${T().lives} ${'♥'.repeat(Math.max(0, state.lives))}`, W - 4, 9, 7, '#f06060', 'right');
+  text(fmtTime(state.time), 120, 9, 7, '#fff', 'left');
   if (state.bossActive && boss.alive) { text(state.confuseCd > 0 ? '' : T().confuseHud, W / 2, 24, 7, state.t % 30 < 20 ? '#f8e060' : '#fff'); if (state.confuseCd > 0) R(W / 2 - 18, 21, 36 * (1 - state.confuseCd / 900), 2, '#f8e060');
     text(T().boss, W / 2, 9, 7, '#d8b040'); for (let i = 0; i < 5; i++) R(W / 2 - 24 + i * 10, 14, 8, 3, i < boss.hp ? '#e04040' : '#444'); }
   if (state.msgT > 0) { R(0, 60, W, 22, 'rgba(0,0,0,.6)'); text(state.bossActive ? T().bossHint : T().start, W / 2, 74, 8, '#fff'); }
-  if (state.mode === 'dead') { R(0, 0, W, H, 'rgba(0,0,0,.6)'); text(T().gameover, W / 2, 80, 16, '#f06060'); if (state.t > 60) text(T().retry, W / 2, 110, 8); }
-  if (state.mode === 'win') { R(0, 0, W, H, 'rgba(0,0,0,.6)'); text(T().win, W / 2, 76, 16, '#d8b040'); text(T().winsub, W / 2, 94, 8); text(`${T().score} ${state.score}`, W / 2, 112, 8); if (state.t > 120) text(T().retry, W / 2, 140, 8); }
+  if (state.mode === 'dead') { R(0, 0, W, H, 'rgba(0,0,0,.6)'); text(T().gameover, W / 2, 60, 16, '#f06060'); text(`${T().score} ${state.score}   ${T().time} ${fmtTime(state.time)}`, W / 2, 78, 8); if (!nameForm.hidden) text(T().enterName, W / 2, 96, 8, '#f8e060'); else { drawHS(W / 2 - 60, 100); if (state.t > 60) text(T().retry, W / 2, 168, 8); } }
+  if (state.mode === 'win') { R(0, 0, W, H, 'rgba(0,0,0,.6)'); text(T().win, W / 2, 50, 16, '#d8b040'); text(T().winsub, W / 2, 66, 8); text(`${T().time} ${fmtTime(state.time)}   ${T().timeBonus} +${state.bonus}`, W / 2, 80, 7); text(`${T().score} ${state.score}`, W / 2, 94, 8, '#f8e060'); if (!nameForm.hidden) text(T().enterName, W / 2, 110, 8, '#f8e060'); else { drawHS(W / 2 - 60, 108); if (state.t > 120) text(T().retry, W / 2, 168, 8); } }
   ctx.restore();
 }
 
