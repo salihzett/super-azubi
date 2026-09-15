@@ -34,16 +34,19 @@ while len(frames) < N:
     frames[i:i+1] = [(x0 + (x1 - x0) * j // k, x0 + (x1 - x0) * (j + 1) // k) for j in range(k)]
 print('frames:', len(frames), frames)
 assert len(frames) == N, f'expected {N} frames'
-rows = (~bg).any(axis=1)
-y0, y1 = np.argmax(rows), len(rows) - np.argmax(rows[::-1])
+# Pro Frame eigene Bounding-Box; Maßstab nach Frame 0 (Stand-Pose), damit Sprung-/Arme-hoch-Frames
+# die Figur nicht kleiner machen. Alle Frames unten (Füße) ausgerichtet.
 out_im = Image.fromarray(a.astype('uint8'))
-crops = [out_im.crop((x0, y0, x1, y1)) for x0, x1 in frames]
-# einheitliche Frame-Breite = breitester Frame, Fuß-Baseline unten ausgerichtet
-scale = H / (y1 - y0)
-W = max(int(round(c.width * scale)) for c in crops)
-strip = Image.new('RGBA', (W * N, H), (0, 0, 0, 0))
-for i, c in enumerate(crops):
-    c2 = c.resize((max(1, int(round(c.width * scale))), H), Image.LANCZOS)
-    strip.paste(c2, (i * W + (W - c2.width) // 2, 0), c2)
+crops = []
+for x0, x1 in frames:
+    sub = ~bg[:, x0:x1]; rows = sub.any(axis=1)
+    y0, y1 = np.argmax(rows), len(rows) - np.argmax(rows[::-1])
+    crops.append(out_im.crop((x0, y0, x1, y1)))
+scale = H / crops[0].height
+sized = [c.resize((max(1, round(c.width * scale)), max(1, round(c.height * scale))), Image.LANCZOS) for c in crops]
+W, FH = max(c.width for c in sized), max(c.height for c in sized)
+strip = Image.new('RGBA', (W * N, FH), (0, 0, 0, 0))
+for i, c in enumerate(sized):
+    strip.paste(c, (i * W + (W - c.width) // 2, FH - c.height), c)
 strip.save(dst)
-print('saved', dst, 'frame', W, 'x', H)
+print('saved', dst, 'frame', W, 'x', FH, 'idle', H)
