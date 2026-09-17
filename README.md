@@ -11,7 +11,7 @@ Kollegen, Gästen und Herrn Pfefferkorn („Ich hab mein Passwort vergessen!“)
 ## Level bauen
 `PLACE` in `index.html` – Einträge `[Zeichen, Spalte, Zeile=9, Anzahl=1]`.
 `K` Koffer, `W` Wagen, `C` PC, `N` Kabel, `S` Switch, `T` Telefon, `=` Tresen, `-` Galerie-Sims
-(nur von oben fest), `~` Brunnen (tödlich), `o` Kaffee, `k` Schlüsselkarte (+1 Leben), `e` Kollege/in, `g` Gast.
+(nur von oben fest), `~` Brunnen (tödlich), `o` Kaffee, `k` Schokoriegel (+1 Leben), `e` Kollege/in, `g` Gast.
 
 ## Sprites
 `assets/*_sheet.png` = KI-generierte Sheets (Magenta-Hintergrund), `assets/split.py` schneidet sie in

@@ -41,6 +41,7 @@ const STR = {
       'Passwort123 geht nicht mehr!', 'Ich hab\'s auf einen Zettel geschrieben!', 'Kannst du mir die Mails vorlesen?', 'Groß- oder Kleinschreibung?!', 'Ich sperr mich schon wieder aus!', 'Zwei-Faktor? Ich hab nur ein Handy!', 'Das Ticket ist DRINGEND!!!'],
     azubiStomp: ['Ticket geschlossen!', 'Aus- und wieder einschalten.', 'Layer-8-Problem.', 'Steht im Wiki!', 'Neustart hilft immer.', 'Kein Backup, kein Mitleid.', 'Bitte per Ticket.', 'Hab ich gefixt.', 'Das ist kein Bug, das ist ein Feature.', 'Cache geleert!', 'Nächster!'],
     confuse: ['Hast du DNS schon mal per Fax probiert?', 'Das Passwort ist Passwort, rückwärts, in Binär.', 'Ich muss erst das Cloud-Kabel neu starten.', 'Dein Ticket wurde nach Narnia eskaliert.', 'Der Server hat Montagsblues.', 'Das WLAN ist heute vegan.', 'Wir migrieren auf Fax 2.0.', 'Dein Rechner braucht mehr RGB.'],
+    phone: ['Chef: Wo bist du schon wieder?', 'Chef: Paket muss abgeholt werden!', 'Chef: Samfex-Auftrag!', 'Chef: Der Beamer in Raum 3 geht nicht!', 'Chef: Bring mal Kaffee mit!', 'Chef: Warum antwortest du nicht auf Teams?', 'Chef: Akku vom Handscanner tauschen!', 'Chef: Drucker im 2. Stock, sofort!', 'Chef: Wo ist das Netzwerkkabel hin?', 'Chef: Ticket 4711 ist noch offen!'],
     confuseHud: 'V = VERWIRREN', confused: '???', time: 'ZEIT', timeBonus: 'ZEITBONUS', best: 'BESTENLISTE', enterName: 'Name eingeben!',
     azubiHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
@@ -54,6 +55,7 @@ const STR = {
     bossLines: ['I forgot my password!', 'Azubi! AZUBI!', 'Is it 1234?', 'Why do I have to log in?', 'Just a new password, quick!', 'Password123 stopped working!', 'I wrote it on a sticky note!', 'Upper or lower case?!', 'Two-factor? I only have one phone!', 'This ticket is URGENT!!!'],
     azubiStomp: ['Ticket closed!', 'Turn it off and on again.', 'Layer 8 problem.', 'It\'s in the wiki!', 'Reboot fixes everything.', 'No backup, no mercy.', 'Please open a ticket.', 'Not a bug, a feature.', 'Cache cleared!', 'Next!'],
     confuse: ['Have you tried DNS over fax?', 'The password is password, backwards, in binary.', 'I need to reboot the cloud cable first.', 'Your ticket got escalated to Narnia.', 'The server has the Monday blues.', 'The WiFi is vegan today.'],
+    phone: ['Boss: Where are you again?', 'Boss: Parcel needs picking up!', 'Boss: Samfex order!', 'Boss: Projector in room 3 is dead!', 'Boss: Bring coffee!', 'Boss: Why no answer on Teams?', 'Boss: Ticket 4711 still open!'],
     confuseHud: 'V = CONFUSE', confused: '???', time: 'TIME', timeBonus: 'TIME BONUS', best: 'HIGH SCORES', enterName: 'Enter your name!',
     azubiHurt: ['I\'m just a trainee!', 'Not my ticket!', 'That\'s second level!', 'I\'m on lunch break!', 'Ask the helpdesk!'],
   },
@@ -351,7 +353,7 @@ function update() {
   if (player.inv > 0) player.inv--;
   if (player.bubbleT > 0) player.bubbleT--;
   // Handy des Azubis klingelt alle ~8 s – reiner Stressfaktor, keine Wirkung
-  if (--player.ringT <= 0) { player.ringT = 420 + Math.random() * 180; player.ringing = 100; beep(1800, 0.08, 'square', 0.03); setTimeout(() => beep(1800, 0.08, 'square', 0.03), 120); }
+  if (--player.ringT <= 0) { player.ringT = 420 + Math.random() * 180; player.ringing = 100; player.ringText = T().phone[Math.floor(Math.random() * T().phone.length)]; beep(1800, 0.08, 'square', 0.03); setTimeout(() => beep(1800, 0.08, 'square', 0.03), 120); }
   if (player.ringing > 0) player.ringing--;
   if (player.vx && player.ground) player.anim++;
   if (player.y > H) return die();
@@ -538,7 +540,7 @@ function render() {
   for (const p of pickups) {
     const x = p.x - state.cam, y = p.y + Math.sin(state.t / 10 + p.x) * 1.5;
     if (p.t === 'o') { R(x, y + 2, 7, 6, '#fff'); R(x + 1, y + 2, 5, 1, '#5a3a22'); R(x + 7, y + 3, 2, 3, '#fff'); if (state.t % 30 < 15) R(x + 2, y - 1, 1, 2, '#ccc'); }
-    else { R(x - 1, y + 1, 10, 7, '#d8b040'); R(x, y + 2, 3, 2, '#333'); R(x + 5, y + 5, 4, 1, '#fff'); }
+    else { R(x - 1, y + 1, 11, 7, '#5a2e12'); R(x, y + 2, 9, 5, '#7a4218'); R(x + 3, y + 2, 1, 5, '#5a2e12'); R(x + 6, y + 2, 1, 5, '#5a2e12'); R(x - 1, y + 1, 2, 7, '#d8b040'); R(x + 9, y + 1, 1, 7, '#d8b040'); } // Schokoriegel
   }
   for (const en of enemies.filter(e => e.t === 'g')) { // Statisten zuerst = hinter allem
     if (Math.abs(en.x - state.cam - W / 2) > W) continue;
@@ -560,7 +562,7 @@ function render() {
   for (const s of shots) { ctx.save(); ctx.translate(s.x - state.cam, s.y); ctx.rotate(s.r); R(-3, -3, 7, 7, '#f8e060'); R(-2, -1, 4, 1, '#888'); ctx.restore(); }
   if (!(player.inv > 0 && (state.t & 2)) && state.mode !== 'dead') drawSprite('azubi', { ...player, x: player.x - state.cam }, !player.ground ? 5 : player.vx ? 1 + ((player.anim >> 2) & 3) : 0);
   if (player.bubbleT > 0 && state.mode === 'play') bubble(player.bubble, player.x - state.cam + 7, player.y - 2);
-  if (player.ringing > 0 && state.mode === 'play') { const px = player.x - state.cam + 7 + player.dir * 10 + (player.ringing & 2 ? 1 : -1), py = player.y + 6; R(px - 2, py - 4, 4, 7, '#222'); R(px - 1, py - 3, 2, 4, '#7ad'); text('))', px + 4, py + 1, 6, '#e04040'); }
+  if (player.ringing > 0 && state.mode === 'play') { const px = player.x - state.cam + 7 + player.dir * 10 + (player.ringing & 2 ? 1 : -1), py = player.y + 6; R(px - 2, py - 4, 4, 7, '#222'); R(px - 1, py - 3, 2, 4, '#7ad'); text('))', px + 4, py + 1, 6, '#e04040'); if (player.bubbleT <= 0) bubble(player.ringText, px, py - 8); }
   for (const p of particles) R(p.x - state.cam, p.y, 2, 2, p.col);
 
   // HUD
