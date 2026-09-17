@@ -30,7 +30,7 @@
 // Alle Texte hier. Sprache: ?lang=en, localStorage oder Taste L im Titel.
 const STR = {
   de: {
-    title: 'SUPER AZUBI', sub: '2 Level', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
     score: 'PUNKTE', lives: 'LEBEN', gameover: 'GAME OVER', retry: 'LEERTASTE = NOCHMAL', win: 'FEIERABEND!',
     winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: '5x auf den Kopf springen! V = Blödsinn erzählen (verwirrt ihn)',
     start: 'Schichtbeginn, Azubi. Nur noch bis zum Aufzug!',
@@ -41,14 +41,14 @@ const STR = {
       'Passwort123 geht nicht mehr!', 'Ich hab\'s auf einen Zettel geschrieben!', 'Kannst du mir die Mails vorlesen?', 'Groß- oder Kleinschreibung?!', 'Ich sperr mich schon wieder aus!', 'Zwei-Faktor? Ich hab nur ein Handy!', 'Das Ticket ist DRINGEND!!!'],
     azubiStomp: ['Ticket geschlossen!', 'Aus- und wieder einschalten.', 'Layer-8-Problem.', 'Steht im Wiki!', 'Neustart hilft immer.', 'Kein Backup, kein Mitleid.', 'Bitte per Ticket.', 'Hab ich gefixt.', 'Das ist kein Bug, das ist ein Feature.', 'Cache geleert!', 'Nächster!'],
     confuse: ['Hast du DNS schon mal per Fax probiert?', 'Das Passwort ist Passwort, rückwärts, in Binär.', 'Ich muss erst das Cloud-Kabel neu starten.', 'Dein Ticket wurde nach Narnia eskaliert.', 'Der Server hat Montagsblues.', 'Das WLAN ist heute vegan.', 'Wir migrieren auf Fax 2.0.', 'Dein Rechner braucht mehr RGB.'],
-    levels: ['Level 1 – Lobby', 'Level 2 – 4. Etage'], start2: 'Ab ins IT-Lager, Azubi!', exitDoor: 'IT-LAGER', nextLevel: 'GESCHAFFT!',
+    levels: ['Level 1 – Lobby', 'Level 2 – Die 4.'], start2: 'Ab ins IT-Lager, Azubi!', exitDoor: 'IT-LAGER', nextLevel: 'GESCHAFFT!',
     office: ['Rechner geht nicht an!', 'Monitor geht nicht an!', 'Acrobat geht nicht!', 'Scanner geht nicht!', 'Drucker geht nicht!', 'Maus geht nicht!', 'Headset funktioniert nicht!', 'Passwort vergessen!', 'Kannst du mal kurz schauen?', 'Das ging gestern noch!', 'Ich hab nichts gemacht!', 'Excel ist eingefroren!', 'Samfex-Auftrag ist da!', 'Die Telefone funktionieren nicht!', 'Akku tauschen, bitte!', 'Teams hört mich nicht!'],
     phone: ['Chef: Wo bist du schon wieder?', 'Chef: Paket muss abgeholt werden!', 'Chef: Samfex-Auftrag!', 'Chef: Der Beamer in Raum 3 geht nicht!', 'Chef: Bring mal Kaffee mit!', 'Chef: Warum antwortest du nicht auf Teams?', 'Chef: Akku vom Handscanner tauschen!', 'Chef: Drucker im 2. Stock, sofort!', 'Chef: Wo ist das Netzwerkkabel hin?', 'Chef: Ticket 4711 ist noch offen!'],
     confuseHud: 'V = VERWIRREN', confused: '???', time: 'ZEIT', timeBonus: 'ZEITBONUS', best: 'BESTENLISTE', enterName: 'Name eingeben!',
     azubiHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
-    title: 'SUPER AZUBI', sub: '2 levels', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
     score: 'SCORE', lives: 'LIVES', gameover: 'GAME OVER', retry: 'SPACE = RETRY', win: 'SHIFT OVER!',
     winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'Stomp his head 5x! V = talk nonsense (confuses him)',
     start: 'Shift starts, trainee. Just reach the elevator!',
@@ -57,7 +57,7 @@ const STR = {
     bossLines: ['I forgot my password!', 'Azubi! AZUBI!', 'Is it 1234?', 'Why do I have to log in?', 'Just a new password, quick!', 'Password123 stopped working!', 'I wrote it on a sticky note!', 'Upper or lower case?!', 'Two-factor? I only have one phone!', 'This ticket is URGENT!!!'],
     azubiStomp: ['Ticket closed!', 'Turn it off and on again.', 'Layer 8 problem.', 'It\'s in the wiki!', 'Reboot fixes everything.', 'No backup, no mercy.', 'Please open a ticket.', 'Not a bug, a feature.', 'Cache cleared!', 'Next!'],
     confuse: ['Have you tried DNS over fax?', 'The password is password, backwards, in binary.', 'I need to reboot the cloud cable first.', 'Your ticket got escalated to Narnia.', 'The server has the Monday blues.', 'The WiFi is vegan today.'],
-    levels: ['Level 1 – Lobby', 'Level 2 – 4th floor'], start2: 'Off to the IT storage room, trainee!', exitDoor: 'IT STORAGE', nextLevel: 'DONE!',
+    levels: ['Level 1 – Lobby', 'Level 2 – The 4th'], start2: 'Off to the IT storage room, trainee!', exitDoor: 'IT STORAGE', nextLevel: 'DONE!',
     office: ['PC won\'t turn on!', 'Monitor won\'t turn on!', 'Acrobat won\'t open!', 'Scanner is dead!', 'Printer won\'t print!', 'Mouse is dead!', 'Headset doesn\'t work!', 'Forgot my password!', 'Can you take a quick look?', 'It worked yesterday!', 'I didn\'t do anything!', 'Excel froze!'],
     phone: ['Boss: Where are you again?', 'Boss: Parcel needs picking up!', 'Boss: Samfex order!', 'Boss: Projector in room 3 is dead!', 'Boss: Bring coffee!', 'Boss: Why no answer on Teams?', 'Boss: Ticket 4711 still open!'],
     confuseHud: 'V = CONFUSE', confused: '???', time: 'TIME', timeBonus: 'TIME BONUS', best: 'HIGH SCORES', enterName: 'Enter your name!',
