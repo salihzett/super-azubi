@@ -30,7 +30,7 @@
 // Alle Texte hier. Sprache: ?lang=en, localStorage oder Taste L im Titel.
 const STR = {
   de: {
-    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
     score: 'PUNKTE', lives: 'LEBEN', gameover: 'GAME OVER', retry: 'LEERTASTE = NOCHMAL', win: 'FEIERABEND!',
     winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: '5x auf den Kopf springen! V = Blödsinn erzählen (verwirrt ihn)',
     start: 'Schichtbeginn, Azubi. Nur noch bis zum Aufzug!',
@@ -45,7 +45,7 @@ const STR = {
     azubiHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
-    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
     score: 'SCORE', lives: 'LIVES', gameover: 'GAME OVER', retry: 'SPACE = RETRY', win: 'SHIFT OVER!',
     winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'Stomp his head 5x! V = talk nonsense (confuses him)',
     start: 'Shift starts, trainee. Just reach the elevator!',
@@ -193,13 +193,45 @@ const overlap = (a, b) => a.x + a.ox < b.x + b.ox + b.w && a.x + a.ox + a.w > b.
 
 // ───────────────────────── Sound (WebAudio-Bleeps) ─────────────────────────
 let AC;
+let muted = localStorage.getItem('superazubi_mute') === '1';
+function toggleMute() { muted = !muted; localStorage.setItem('superazubi_mute', muted ? '1' : '0'); }
 function beep(f, dur, type = 'square', vol = 0.08, slide = 0) {
-  if (!AC) return;
+  if (!AC || muted) return;
   const o = AC.createOscillator(), g = AC.createGain();
   o.type = type; o.frequency.value = f; if (slide) o.frequency.linearRampToValueAtTime(f + slide, AC.currentTime + dur);
   g.gain.value = vol; g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
   o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + dur);
 }
+// ───────────────────────── Musik (Chiptune-Loop, eigene Melodie) ─────────────────────────
+// 16tel-Schritte, MIDI-Nummern, 0 = Pause. Lead 4 Takte, Bass 2 Takte (wird wiederholt).
+const MUSIC = {
+  lead: [72,0,76,0, 79,0,76,79, 81,0,79,76, 74,0,0,0,  71,0,74,0, 77,0,74,77, 79,0,77,74, 72,0,0,0,
+         72,0,76,0, 79,0,76,79, 84,0,83,81, 79,0,0,0,  81,79,77,76, 74,0,77,76, 74,0,71,0, 72,0,0,0],
+  bass: [48,0,48,0, 55,0,55,0, 53,0,53,0, 55,0,55,0,  43,0,43,0, 50,0,50,0, 53,0,53,0, 55,0,55,0],
+};
+const midi = n => 440 * Math.pow(2, (n - 69) / 12);
+let musicStep = 0, musicNext = 0;
+function note(f, t, dur, type, vol) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur);
+}
+function musicTick() {
+  if (!AC) return;
+  const bpm = state.bossActive ? 185 : 150, step = 60 / bpm / 4;
+  if (musicNext < AC.currentTime) musicNext = AC.currentTime;
+  while (musicNext < AC.currentTime + 0.15) {
+    if (state.mode === 'play' && !muted) {
+      const l = MUSIC.lead[musicStep % MUSIC.lead.length], b = MUSIC.bass[musicStep % MUSIC.bass.length];
+      if (l) note(midi(l), musicNext, step * 1.8, 'square', 0.025);
+      if (b) note(midi(b), musicNext, step * 1.5, 'triangle', 0.05);
+      if (musicStep % 4 === 0) note(60, musicNext, 0.05, 'sine', 0.06); // Kick
+      if (musicStep % 8 === 4) note(3000, musicNext, 0.03, 'square', 0.012); // Hat
+    }
+    musicStep++; musicNext += step;
+  }
+}
+setInterval(musicTick, 40);
 const SFX = {
   jump: () => beep(300, 0.15, 'square', 0.06, 300),
   coin: () => { beep(900, 0.08, 'square', 0.05); setTimeout(() => beep(1300, 0.15, 'square', 0.05), 60); },
@@ -225,6 +257,7 @@ const KEYMAP = { ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', 
 addEventListener('keydown', e => {
   const k = KEYMAP[e.key]; if (k) { e.preventDefault(); down(k); }
   if (e.key === 'v' || e.key === 'V' || e.code === 'KeyV') confuse();
+  if (e.key === 'm' || e.key === 'M' || e.code === 'KeyM') toggleMute();
   if (e.key === 'Escape') resetState(); // ESC = zurück zum Titel
   if (e.key === 'l' && state.mode === 'title') { lang = lang === 'de' ? 'en' : 'de'; localStorage.setItem('lang', lang); }
 });
@@ -535,6 +568,7 @@ function render() {
   text(`${T().score} ${String(state.score).padStart(6, '0')}`, 4, 9, 7, '#fff', 'left');
   text(`${T().lives} ${'♥'.repeat(Math.max(0, state.lives))}`, W - 4, 9, 7, '#f06060', 'right');
   text(fmtTime(state.time), 120, 9, 7, '#fff', 'left');
+  if (muted) text('M: AUS', 160, 9, 6, '#888', 'left');
   if (state.bossActive && boss.alive) { text(state.confuseCd > 0 ? '' : T().confuseHud, W / 2, 24, 7, state.t % 30 < 20 ? '#f8e060' : '#fff'); if (state.confuseCd > 0) R(W / 2 - 18, 21, 36 * (1 - state.confuseCd / 900), 2, '#f8e060');
     text(T().boss, W / 2, 9, 7, '#d8b040'); for (let i = 0; i < 5; i++) R(W / 2 - 24 + i * 10, 14, 8, 3, i < boss.hp ? '#e04040' : '#444'); }
   if (state.msgT > 0) { R(0, 60, W, 22, 'rgba(0,0,0,.6)'); text(state.bossActive ? T().bossHint : T().start, W / 2, 74, 8, '#fff'); }
