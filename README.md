@@ -1,54 +1,29 @@
 # Super Azubi
 
-HTML5 Jump'n'Run. Ein IT-Azubi muss durch die Adlon-Lobby bis zum Aufzug – vorbei an
-Kollegen, Gästen und Herrn Pfefferkorn („Ich hab mein Passwort vergessen!“).
+An HTML5 jump'n'run. You play an IT trainee who has to cross the hotel lobby to reach the
+elevator – over luggage, PCs, network cables, switches and phones, past colleagues who all
+have "just a quick question", while your own phone keeps ringing. At the end waits
+Mr. Pfefferkorn, who forgets his password every five minutes.
 
-`index.html` im Browser öffnen, fertig. Keine Abhängigkeiten.
+**Play:** https://salihzett.github.io/super-azubi/ – or open `index.html` in a browser.
 
-**Steuerung:** Pfeile/WASD + Leertaste (Sprung), `V` = Boss verwirren, `ESC` = Titel,
-`L` = Sprache (Titel). Touch-Buttons auf dem Handy.
+## Controls
 
-## Level bauen
-`PLACE` in `index.html` – Einträge `[Zeichen, Spalte, Zeile=9, Anzahl=1]`.
-`K` Koffer, `W` Wagen, `C` PC, `N` Kabel, `S` Switch, `T` Telefon, `=` Tresen, `-` Galerie-Sims
-(nur von oben fest), `~` Brunnen (tödlich), `o` Kaffee, `k` Schokoriegel (+1 Leben), `e` Kollege/in, `g` Gast.
+| Key | Action |
+|-----|--------|
+| ← → / A D | Move |
+| Space / ↑ / W | Jump (hold for higher) |
+| V | Talk nonsense – confuses the boss for a few seconds |
+| M | Sound on/off |
+| ESC | Back to title |
+| L | Switch language (title screen) |
 
-## Sprites
-`assets/*_sheet.png` = KI-generierte Sheets (Magenta-Hintergrund), `assets/split.py` schneidet sie in
-Streifen (`python3 assets/split.py sheet.png out.png <idle-höhe> <frames>`). Streifen werden als Base64
-in `index.html` eingebettet.
+On phones: on-screen buttons.
 
-## Gemeinsame Bestenliste (Supabase)
-Ohne Konfiguration speichert das Spiel die Bestenliste nur im Browser (`localStorage`).
-Für eine geteilte Liste:
+## Goal
 
-1. Auf https://supabase.com ein kostenloses Projekt anlegen.
-2. SQL Editor → folgendes ausführen:
-
-```sql
-create table scores (
-  id bigint generated always as identity primary key,
-  name text not null check (char_length(name) between 1 and 12),
-  score int not null check (score between 0 and 200000),
-  time int not null check (time between 0 and 36000),
-  win boolean not null default false,
-  created_at timestamptz default now()
-);
-alter table scores enable row level security;
-create policy "anyone can read" on scores for select using (true);
-create policy "anyone can insert" on scores for insert with check (true);
-```
-
-3. Project Settings → API: **Project URL** und **anon public key** kopieren.
-4. In `index.html` eintragen:
-
-```js
-const SUPABASE = { url: 'https://xxxx.supabase.co', key: 'eyJ…' };
-```
-
-Der anon-Key ist öffentlich gedacht; die Policies erlauben nur Lesen und Einfügen, kein Löschen/Ändern.
-
-## GitHub Pages
-1. Repo auf GitHub pushen (Branch `main`).
-2. Repo → Settings → Pages → Source: „Deploy from a branch“, Branch `main`, Ordner `/ (root)` → Save.
-3. Nach ~1 Minute: `https://<user>.github.io/<repo>/`.
+- Jump on colleagues to close their tickets. Touching them costs a life.
+- Coffee = points, chocolate bar = extra life.
+- Don't fall into the fountain.
+- Boss: jump on his head 5 times. Press V when he gets annoying.
+- Reach the elevator. Faster = time bonus. Enter your name for the leaderboard.
