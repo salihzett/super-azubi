@@ -30,13 +30,13 @@
 // Alle Texte hier. Sprache: ?lang=en, localStorage oder Taste L im Titel.
 const STR = {
   de: {
-    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Hotel-Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
     score: 'PUNKTE', lives: 'LEBEN', gameover: 'GAME OVER', retry: 'LEERTASTE = NOCHMAL', win: 'FEIERABEND!',
     winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: '5x auf den Kopf springen! V = Blödsinn erzählen (verwirrt ihn)',
     start: 'Schichtbeginn, Azubi. Nur noch bis zum Aufzug!',
     colleague: ['Mein Drucker druckt nicht!', 'Kannst du mal kurz schauen?', 'Das Internet ist langsam!', 'Ich hab auf den Link geklickt…', 'Mein Outlook ist weg!', 'Nur ganz kurz!', 'Wo ist die Maus?',
       'Der Bildschirm ist schwarz!', 'Ich hab nichts gemacht!', 'Excel ist eingefroren!', 'Mein Passwort ist abgelaufen!', 'Kannst du mir Admin geben?', 'Das ging gestern noch!', 'Ich hab den Stecker gezogen…', 'Der Rechner macht Geräusche!', 'Wo ist die Any-Taste?', 'Ist das WLAN-Kabel kaputt?', 'Ich hab 47 Tabs offen. Zu viel?', 'Teams hört mich nicht!', 'Kann man das nicht schneller machen?', 'Mein Kaffee ist in der Tastatur!', 'Samfex-Auftrag ist da!', 'Die Telefone funktionieren nicht!', 'Akku tauschen, bitte!', 'Drucker geht nicht!', 'Noch ein Samfex-Auftrag!', 'Das Telefon in 412 ist tot!'],
-    guest: ['Schönes Hotel!', 'Wo ist die Bar?', 'Der Kronleuchter ist riesig!', 'Ist das Brandenburger Tor da drüben?', 'Ein Foto, bitte!', 'Unser Zimmer hat Blick auf den Pariser Platz!', 'Wann gibt es Frühstück?', 'Mein Koffer wiegt eine Tonne.', 'Ich such den Elefantenbrunnen.', 'Ist hier WLAN? Egal, Urlaub!'],
+    guest: ['Schönes Hotel!', 'Wo ist die Bar?', 'Der Kronleuchter ist riesig!', 'Ist das da drüben die Spree?', 'Ein Foto, bitte!', 'Unser Zimmer hat Blick auf den Fluss!', 'Wann gibt es Frühstück?', 'Mein Koffer wiegt eine Tonne.', 'Ich such den Brunnen.', 'Ist hier WLAN? Egal, Urlaub!'],
     bossLines: ['Ich hab mein Passwort vergessen!', 'Azubi! AZUBI!', 'Ist es 1234?', 'Warum muss ich mich anmelden?', 'Nur ein neues Passwort, schnell!',
       'Passwort123 geht nicht mehr!', 'Ich hab\'s auf einen Zettel geschrieben!', 'Kannst du mir die Mails vorlesen?', 'Groß- oder Kleinschreibung?!', 'Ich sperr mich schon wieder aus!', 'Zwei-Faktor? Ich hab nur ein Handy!', 'Das Ticket ist DRINGEND!!!'],
     azubiStomp: ['Ticket geschlossen!', 'Aus- und wieder einschalten.', 'Layer-8-Problem.', 'Steht im Wiki!', 'Neustart hilft immer.', 'Kein Backup, kein Mitleid.', 'Bitte per Ticket.', 'Hab ich gefixt.', 'Das ist kein Bug, das ist ein Feature.', 'Cache geleert!', 'Nächster!'],
@@ -46,12 +46,12 @@ const STR = {
     azubiHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
-    title: 'SUPER AZUBI', sub: 'Level 1 – Adlon Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
+    title: 'SUPER AZUBI', sub: 'Level 1 – Hotel Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
     score: 'SCORE', lives: 'LIVES', gameover: 'GAME OVER', retry: 'SPACE = RETRY', win: 'SHIFT OVER!',
     winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'Stomp his head 5x! V = talk nonsense (confuses him)',
     start: 'Shift starts, trainee. Just reach the elevator!',
     colleague: ['My printer won\'t print!', 'Can you take a quick look?', 'The internet is slow!', 'I clicked the link…', 'My Outlook is gone!', 'Just a second!', 'Where is the mouse?', 'The screen is black!', 'I didn\'t do anything!', 'Excel froze!', 'Can I have admin rights?', 'It worked yesterday!', 'Where is the Any key?', 'Is the WiFi cable broken?', 'Teams can\'t hear me!', 'My coffee is in the keyboard!'],
-    guest: ['Lovely hotel!', 'Where is the bar?', 'That chandelier is huge!', 'Is that the Brandenburg Gate?', 'One photo, please!', 'When is breakfast?', 'My suitcase weighs a ton.', 'Looking for the elephant fountain.'],
+    guest: ['Lovely hotel!', 'Where is the bar?', 'That chandelier is huge!', 'Is that the river over there?', 'One photo, please!', 'When is breakfast?', 'My suitcase weighs a ton.', 'Looking for the fountain.'],
     bossLines: ['I forgot my password!', 'Azubi! AZUBI!', 'Is it 1234?', 'Why do I have to log in?', 'Just a new password, quick!', 'Password123 stopped working!', 'I wrote it on a sticky note!', 'Upper or lower case?!', 'Two-factor? I only have one phone!', 'This ticket is URGENT!!!'],
     azubiStomp: ['Ticket closed!', 'Turn it off and on again.', 'Layer 8 problem.', 'It\'s in the wiki!', 'Reboot fixes everything.', 'No backup, no mercy.', 'Please open a ticket.', 'Not a bug, a feature.', 'Cache cleared!', 'Next!'],
     confuse: ['Have you tried DNS over fax?', 'The password is password, backwards, in binary.', 'I need to reboot the cloud cable first.', 'Your ticket got escalated to Narnia.', 'The server has the Monday blues.', 'The WiFi is vegan today.'],
@@ -468,7 +468,7 @@ function drawTile(t, x, y, cx) {
     case 'T': // Telefon
       R(x + 2, y + 8, 12, 7, '#e8e0d0'); R(x + 1, y + 4, 14, 3, '#2a2a30'); R(x + 1, y + 6, 2, 3, '#2a2a30'); R(x + 13, y + 6, 2, 3, '#2a2a30');
       for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) R(x + 5 + i * 3, y + 10 + j * 2, 2, 1, '#666'); break;
-    case '~': { // Elefantenbrunnen: Steinbecken, Wasser, Fontäne + Elefant in der Mitte
+    case '~': { // Brunnen: Steinbecken, Wasser, Fontäne + Statue in der Mitte
       R(x, y + 3, 16, 13, '#2c5aa8'); R(x, y + 3, 16, 1, '#8ac0f0'); const ph = ((state.t >> 3) + cx) % 4; R(x + ph * 4, y + 6, 4, 1, '#a0d0ff'); R(x + ((ph + 2) % 4) * 4, y + 10, 3, 1, '#7ab0e8');
       R(x, y, 16, 3, '#9a9a94'); R(x, y, 16, 1, '#c8c8c0'); // Beckenrand
       const left = tileAt(x + state.cam - 1, y) !== '~', right = tileAt(x + state.cam + 16, y) !== '~';
@@ -489,7 +489,7 @@ function drawBackground() {
     const cx = x + 56; R(cx - 1, 0, 2, 14, '#8a7a40'); R(cx - 10, 14, 20, 3, '#d8b040'); R(cx - 7, 17, 14, 4, '#f0d060');
     for (let i = 0; i < 5; i++) R(cx - 9 + i * 4, 21 + (i % 2), 2, 3 + (i % 2), (state.t + i * 7) % 20 < 10 ? '#fff8c0' : '#f0d060');
   }
-  if (state.mode !== 'title' && state.cam < 300) { ctx.fillStyle = '#b89030'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left'; ctx.fillText('HOTEL ADLON', 60 - state.cam * 0.5, 50); }
+  if (state.mode !== 'title' && state.cam < 300) { ctx.fillStyle = '#b89030'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left'; ctx.fillText('GRAND HOTEL', 60 - state.cam * 0.5, 50); }
   // Aufzug am Ende
   const ex = EXIT_X * TILE - state.cam;
   if (ex > -40 && ex < W) {
