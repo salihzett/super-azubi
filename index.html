@@ -196,13 +196,14 @@ function mkEnemy(t, cx, cy) {
     vx: 0, vy: 0, dir: -1, alive: true, deadT: 0, bubble: '', bubbleT: 0, sayT: 60 + Math.random() * 120,
     hp: 5, inv: 0, callT: 240, anim: 0, confused: 0, ground: false, hitWall: false };
 }
-const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: false, inv: 0, anim: 0, hitWall: false, bubble: '', bubbleT: 0, ringT: 0 };
+const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: false, inv: 0, anim: 0, hitWall: false, bubble: '', bubbleT: 0, ringT: 0, idleT: 0 };
 function resetState() {
   for (const k in keys) keys[k] = false; startPressed = false; nameForm.hidden = true;
   refreshHS();
   state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0 };
 }
 function startLevel(i = 0) {
+  player.idleT = 0; player.asleep = false;
   state.level = i; LV = LEVELS[i]; LEVEL_W = LV.width; BOSS_X = LV.bossX; EXIT_X = LV.exitX;
   buildLevel(); shots = []; particles = [];
   player.x = 2 * TILE; player.y = FLOOR * TILE - player.h; player.vx = player.vy = 0; player.dir = 1; player.inv = 0;
@@ -389,6 +390,8 @@ function update() {
   moveBody(player);
   if (player.inv > 0) player.inv--;
   if (player.bubbleT > 0) player.bubbleT--;
+  player.idleT = (keys.left || keys.right || keys.jump || !player.ground) ? 0 : player.idleT + 1;
+  player.asleep = player.idleT > 300; // 5 s ohne Eingabe -> Nickerchen
   // Handy des Azubis klingelt alle ~8 s – reiner Stressfaktor, keine Wirkung
   if (--player.ringT <= 0) { player.ringT = 420 + Math.random() * 180; player.ringing = 100; player.ringText = T().phone[Math.floor(Math.random() * T().phone.length)]; beep(1800, 0.08, 'square', 0.03); setTimeout(() => beep(1800, 0.08, 'square', 0.03), 120); }
   if (player.ringing > 0) player.ringing--;
@@ -626,7 +629,12 @@ function render() {
     if (boss.confused) for (let i = 0; i < 3; i++) { const a = state.t / 12 + i * 2.1; text('✦', boss.x - state.cam + 15 + Math.cos(a) * 14, boss.y - 2 + Math.sin(a) * 4, 8, '#f8e060'); }
   }
   for (const s of shots) { ctx.save(); ctx.translate(s.x - state.cam, s.y); ctx.rotate(s.r); R(-3, -3, 7, 7, '#f8e060'); R(-2, -1, 4, 1, '#888'); ctx.restore(); }
-  if (!(player.inv > 0 && (state.t & 2)) && state.mode !== 'dead') drawSprite('azubi', { ...player, x: player.x - state.cam }, !player.ground ? 5 : player.vx ? 1 + ((player.anim >> 2) & 3) : 0);
+  if (player.asleep && state.mode === 'play') {
+    const sp = SPR.azubi, fx = player.x - state.cam + 7, fy = player.y + player.h;
+    ctx.save(); ctx.translate(Math.round(fx), Math.round(fy)); ctx.rotate(-Math.PI / 2); ctx.scale(player.dir, 1);
+    ctx.drawImage(sp.img, 0, 0, sp.fw, sp.fh, 0, -sp.fh / RS / 2, sp.fw / RS, sp.fh / RS); ctx.restore(); // liegt auf dem Rücken, Kopf in Blickrichtung
+    for (let i = 0; i < 3; i++) { const ph = ((player.idleT - 300) / 30 + i * 0.7) % 2.1; if (ph < 0) continue; text('z', fx - player.dir * 22 + Math.sin(ph * 3) * 3, fy - 14 - ph * 12, 5 + ph * 2, '#5a6a84'); }
+  } else if (!(player.inv > 0 && (state.t & 2)) && state.mode !== 'dead') drawSprite('azubi', { ...player, x: player.x - state.cam }, !player.ground ? 5 : player.vx ? 1 + ((player.anim >> 2) & 3) : 0);
   if (player.bubbleT > 0 && state.mode === 'play') bubble(player.bubble, player.x - state.cam + 7, player.y - 2);
   if (player.ringing > 0 && state.mode === 'play') { const px = player.x - state.cam + 7 + player.dir * 10 + (player.ringing & 2 ? 1 : -1), py = player.y + 6; R(px - 2, py - 4, 4, 7, '#222'); R(px - 1, py - 3, 2, 4, '#7ad'); text('))', px + 4, py + 1, 6, '#e04040'); if (player.bubbleT <= 0) bubble(player.ringText, px, py - 8); }
   for (const p of particles) R(p.x - state.cam, p.y, 2, 2, p.col);
