@@ -30,7 +30,7 @@
 // Alle Texte hier. Sprache: ?lang=en, localStorage oder Taste L im Titel.
 const STR = {
   de: {
-    title: 'SUPER AZUBI', sub: 'Level 1 – Lobby', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
+    title: 'SUPER AZUBI', sub: '2 Level', press: 'LEERTASTE / TIPPEN', lang: 'L = English   ESC = Neustart   M = Ton',
     score: 'PUNKTE', lives: 'LEBEN', gameover: 'GAME OVER', retry: 'LEERTASTE = NOCHMAL', win: 'FEIERABEND!',
     winsub: 'Alle Tickets geschlossen.', boss: 'HERR PFEFFERKORN', bossHint: '5x auf den Kopf springen! V = Blödsinn erzählen (verwirrt ihn)',
     start: 'Schichtbeginn, Azubi. Nur noch bis zum Aufzug!',
@@ -41,12 +41,14 @@ const STR = {
       'Passwort123 geht nicht mehr!', 'Ich hab\'s auf einen Zettel geschrieben!', 'Kannst du mir die Mails vorlesen?', 'Groß- oder Kleinschreibung?!', 'Ich sperr mich schon wieder aus!', 'Zwei-Faktor? Ich hab nur ein Handy!', 'Das Ticket ist DRINGEND!!!'],
     azubiStomp: ['Ticket geschlossen!', 'Aus- und wieder einschalten.', 'Layer-8-Problem.', 'Steht im Wiki!', 'Neustart hilft immer.', 'Kein Backup, kein Mitleid.', 'Bitte per Ticket.', 'Hab ich gefixt.', 'Das ist kein Bug, das ist ein Feature.', 'Cache geleert!', 'Nächster!'],
     confuse: ['Hast du DNS schon mal per Fax probiert?', 'Das Passwort ist Passwort, rückwärts, in Binär.', 'Ich muss erst das Cloud-Kabel neu starten.', 'Dein Ticket wurde nach Narnia eskaliert.', 'Der Server hat Montagsblues.', 'Das WLAN ist heute vegan.', 'Wir migrieren auf Fax 2.0.', 'Dein Rechner braucht mehr RGB.'],
+    levels: ['Level 1 – Lobby', 'Level 2 – 4. Etage'], start2: 'Ab ins IT-Lager, Azubi!', exitDoor: 'IT-LAGER', nextLevel: 'GESCHAFFT!',
+    office: ['Rechner geht nicht an!', 'Monitor geht nicht an!', 'Acrobat geht nicht!', 'Scanner geht nicht!', 'Drucker geht nicht!', 'Maus geht nicht!', 'Headset funktioniert nicht!', 'Passwort vergessen!', 'Kannst du mal kurz schauen?', 'Das ging gestern noch!', 'Ich hab nichts gemacht!', 'Excel ist eingefroren!', 'Samfex-Auftrag ist da!', 'Die Telefone funktionieren nicht!', 'Akku tauschen, bitte!', 'Teams hört mich nicht!'],
     phone: ['Chef: Wo bist du schon wieder?', 'Chef: Paket muss abgeholt werden!', 'Chef: Samfex-Auftrag!', 'Chef: Der Beamer in Raum 3 geht nicht!', 'Chef: Bring mal Kaffee mit!', 'Chef: Warum antwortest du nicht auf Teams?', 'Chef: Akku vom Handscanner tauschen!', 'Chef: Drucker im 2. Stock, sofort!', 'Chef: Wo ist das Netzwerkkabel hin?', 'Chef: Ticket 4711 ist noch offen!'],
     confuseHud: 'V = VERWIRREN', confused: '???', time: 'ZEIT', timeBonus: 'ZEITBONUS', best: 'BESTENLISTE', enterName: 'Name eingeben!',
     azubiHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
-    title: 'SUPER AZUBI', sub: 'Level 1 – Lobby', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
+    title: 'SUPER AZUBI', sub: '2 levels', press: 'SPACE / TAP', lang: 'L = Deutsch   ESC = Restart   M = Sound',
     score: 'SCORE', lives: 'LIVES', gameover: 'GAME OVER', retry: 'SPACE = RETRY', win: 'SHIFT OVER!',
     winsub: 'All tickets closed.', boss: 'MR. PFEFFERKORN', bossHint: 'Stomp his head 5x! V = talk nonsense (confuses him)',
     start: 'Shift starts, trainee. Just reach the elevator!',
@@ -55,6 +57,8 @@ const STR = {
     bossLines: ['I forgot my password!', 'Azubi! AZUBI!', 'Is it 1234?', 'Why do I have to log in?', 'Just a new password, quick!', 'Password123 stopped working!', 'I wrote it on a sticky note!', 'Upper or lower case?!', 'Two-factor? I only have one phone!', 'This ticket is URGENT!!!'],
     azubiStomp: ['Ticket closed!', 'Turn it off and on again.', 'Layer 8 problem.', 'It\'s in the wiki!', 'Reboot fixes everything.', 'No backup, no mercy.', 'Please open a ticket.', 'Not a bug, a feature.', 'Cache cleared!', 'Next!'],
     confuse: ['Have you tried DNS over fax?', 'The password is password, backwards, in binary.', 'I need to reboot the cloud cable first.', 'Your ticket got escalated to Narnia.', 'The server has the Monday blues.', 'The WiFi is vegan today.'],
+    levels: ['Level 1 – Lobby', 'Level 2 – 4th floor'], start2: 'Off to the IT storage room, trainee!', exitDoor: 'IT STORAGE', nextLevel: 'DONE!',
+    office: ['PC won\'t turn on!', 'Monitor won\'t turn on!', 'Acrobat won\'t open!', 'Scanner is dead!', 'Printer won\'t print!', 'Mouse is dead!', 'Headset doesn\'t work!', 'Forgot my password!', 'Can you take a quick look?', 'It worked yesterday!', 'I didn\'t do anything!', 'Excel froze!'],
     phone: ['Boss: Where are you again?', 'Boss: Parcel needs picking up!', 'Boss: Samfex order!', 'Boss: Projector in room 3 is dead!', 'Boss: Bring coffee!', 'Boss: Why no answer on Teams?', 'Boss: Ticket 4711 still open!'],
     confuseHud: 'V = CONFUSE', confused: '???', time: 'TIME', timeBonus: 'TIME BONUS', best: 'HIGH SCORES', enterName: 'Enter your name!',
     azubiHurt: ['I\'m just a trainee!', 'Not my ticket!', 'That\'s second level!', 'I\'m on lunch break!', 'Ask the helpdesk!'],
@@ -84,10 +88,10 @@ const ENEMY_TYPES = { e: ['kollege', 'kollegin'], g: ['gast1', 'gast2', 'gast3']
 
 // ───────────────────────── Level ─────────────────────────
 const TILE = 16, W = 320, H = 176, ROWS = 11, FLOOR = 10;
-const SOLID = new Set(['#', '=', 'K', 'W', 'C', 'N', 'S', 'T', '|', '-']);
+const SOLID = new Set(['#', '=', 'K', 'W', 'C', 'N', 'S', 'T', '|', '-', 'D', 'P', 'A']);
 // Platzierung: [Zeichen, Spalte, Zeile=9, Anzahl=1]. Spalte 0 = ganz links.
-const LEVEL_W = 356, BOSS_X = 330, EXIT_X = 346;
-const PLACE = [
+let LEVEL_W, BOSS_X, EXIT_X, LV; // aktuelles Level (aus LEVELS)
+const PLACE_LOBBY = [
   ['K',10],['K',11],['K',11,8],['o',12,7],['o',13,7],['e',18],
   ['C',24],['C',25],['o',25,7],
   ['=',30,8,7],['o',31,7],['o',32,7],['o',34,7],['o',35,7],['e',33,7],
@@ -130,21 +134,52 @@ const PLACE = [
   ['K',320],['K',320,8],['K',321],
   // Gäste (Statisten, laufen nur herum)
   ['g',6],['g',36],['g',66],['g',94],['g',128],['g',158],['g',186],['g',218],['g',246],['g',284],['g',312],
-  ['|',BOSS_X - 2],
+];
+// Level 2: Großraumbüro. D Schreibtisch, P Drucker, A Aktenschrank, '-' Regalbrett. Kein Boss, Ziel = Tür IT-Lager.
+const PLACE_OFFICE = [
+  ['D',8],['D',9],['o',8,7],['o',9,7],['e',14],
+  ['A',18],['A',18,8],['o',18,6],
+  ['P',24],['e',28],['D',32],['D',33],['C',33,8],['o',34,6],
+  ['-',38,6,5],['o',39,5],['o',41,5],['e',40,5],
+  ['A',46],['A',46,8],['A',47],['A',47,8],['A',47,7],['o',47,5],
+  ['e',52],['e',56],
+  ['D',60],['D',61],['D',62],['P',63],['o',61,7],['o',62,7],
+  ['-',66,5,4],['k',67,4],
+  ['N',72],['N',73],['e',78],['T',82],['D',84],['C',84,8],
+  ['-',88,6,6],['e',90,5],['o',89,5],['o',93,5],
+  ['e',98],['A',102],['A',102,8],['A',103],['A',103,8],['A',103,7],['A',104],['A',104,8],['A',104,7],['A',104,6],['o',104,4],
+  ['e',110],['e',114],['D',118],['D',119],['P',120],['o',118,7],['o',119,7],
+  ['-',124,4,4],['o',125,3],['o',126,3],['e',126,3],
+  ['S',132],['S',132,8],['C',134],['C',134,8],['e',138],['e',142],
+  ['D',146],['D',147],['D',148],['o',146,7],['o',147,7],['o',148,7],['-',150,6,5],['e',152,5],
+  ['A',158],['A',158,8],['e',162],['P',166],['T',168],['e',172],
+  ['-',176,5,5],['o',177,4],['o',179,4],['o',181,4],
+  ['N',184],['N',185],['N',186],['e',190],['e',194],
+  ['D',198],['C',198,8],['D',199],['D',200],['A',204],['A',204,8],['A',204,7],['o',204,5],
+  ['e',210],['e',214],['e',218],
+  ['-',222,6,4],['k',223,5],['P',228],['D',230],['D',231],['e',236],['e',240],
+  ['S',244],['S',244,8],['S',245],['T',248],['e',252],['e',256],['e',260],
+  ['D',264],['D',265],['C',265,8],['o',266,6],['e',270],['e',274],
+  ['A',278],['A',278,8],['o',278,6],['e',282],['e',286],
+];
+const LEVELS = [
+  { bg: 'lobby', place: PLACE_LOBBY, width: 356, bossX: 330, exitX: 346, lines: 'colleague', start: 'start' },
+  { bg: 'office', place: PLACE_OFFICE, width: 300, bossX: null, exitX: 291, lines: 'office', start: 'start2' },
 ];
 let map, enemies, pickups, boss, shots = [], particles = [], state;
 function buildLevel() {
   map = Array.from({ length: ROWS }, () => new Array(LEVEL_W).fill('.'));
   for (let x = 0; x < LEVEL_W; x++) map[FLOOR][x] = '#';
   enemies = []; pickups = [];
-  for (const [ch, x, y = 9, n = 1] of PLACE) {
+  const place = LV.bossX ? [...LV.place, ['|', LV.bossX - 2]] : LV.place;
+  for (const [ch, x, y = 9, n = 1] of place) {
     if (ch === 'e' || ch === 'g') { enemies.push(mkEnemy(ch, x, y)); continue; }
     if (ch === 'o' || ch === 'k') { pickups.push({ t: ch, x: x * TILE + 4, y: y * TILE + 4 }); continue; }
     if (ch === '|') { for (let r = 0; r < FLOOR; r++) map[r][x] = '|'; continue; } // Arena-Absperrung, erst mit Boss aktiv
     // Tresen reicht bis zum Boden
     for (let i = 0; i < n; i++) for (let r = y; r < (ch === '=' ? FLOOR : y + 1); r++) map[r][x + i] = ch;
   }
-  boss = mkEnemy('B', BOSS_X + 12, 9);
+  boss = LV.bossX ? mkEnemy('B', BOSS_X + 12, 9) : null;
 }
 const tileAt = (px, py) => { const cx = Math.floor(px / TILE), cy = Math.floor(py / TILE); if (cx < 0 || cx >= LEVEL_W) return '#'; if (cy < 0 || cy >= ROWS) return '.'; return map[cy][cx]; };
 const isSolid = (px, py, fromAbove) => {
@@ -167,10 +202,11 @@ function resetState() {
   refreshHS();
   state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0 };
 }
-function startLevel() {
+function startLevel(i = 0) {
+  state.level = i; LV = LEVELS[i]; LEVEL_W = LV.width; BOSS_X = LV.bossX; EXIT_X = LV.exitX;
   buildLevel(); shots = []; particles = [];
   player.x = 2 * TILE; player.y = FLOOR * TILE - player.h; player.vx = player.vy = 0; player.dir = 1; player.inv = 0;
-  state.mode = 'play'; state.bossActive = state.bossDone = false; state.cam = 0; state.msgT = 180;
+  state.mode = 'play'; state.bossActive = false; state.bossDone = !LV.bossX; state.cam = 0; state.msgT = 180;
 }
 
 // ───────────────────────── Physik ─────────────────────────
@@ -333,7 +369,8 @@ function puff(x, y, col, n = 6) { for (let i = 0; i < n; i++) particles.push({ x
 
 function update() {
   state.t++;
-  if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; startLevel(); } startPressed = false; return; }
+  if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; startLevel(0); } startPressed = false; return; }
+  if (state.mode === 'next') { if (state.t > 150) startLevel(state.level + 1); return; }
   if (state.mode === 'dead') { if (state.t > 60 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
   if (state.mode === 'win') { if (state.t > 120 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
   startPressed = false;
@@ -370,10 +407,10 @@ function update() {
     return true;
   });
 
-  for (const en of enemies) en.t === 'g' ? updateGuest(en) : updateEnemy(en, T().colleague);
+  for (const en of enemies) en.t === 'g' ? updateGuest(en) : updateEnemy(en, T()[LV.lines]);
 
   // Boss-Trigger
-  if (!state.bossActive && !state.bossDone && player.x > (BOSS_X - 4) * TILE) {
+  if (LV.bossX && !state.bossActive && !state.bossDone && player.x > (BOSS_X - 4) * TILE) {
     state.bossActive = true; state.msgT = 200; SFX.ring(); boss.callT = 60;
   }
   if (state.bossActive) updateBoss();
@@ -384,7 +421,11 @@ function update() {
   });
   particles = particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; return --p.t > 0; });
 
-  if (state.bossDone && player.x > EXIT_X * TILE) { state.mode = 'win'; state.t = 0; startPressed = false; state.bonus = Math.max(0, 300 - Math.floor(state.time / 60)) * 10; state.score += state.bonus; SFX.win(); askName(); }
+  if (state.bossDone && player.x > EXIT_X * TILE) {
+    state.t = 0; startPressed = false; SFX.win();
+    if (state.level + 1 < LEVELS.length) { state.mode = 'next'; state.score += 1000; }
+    else { state.mode = 'win'; state.bonus = Math.max(0, 600 - Math.floor(state.time / 60)) * 10; state.score += state.bonus; askName(); }
+  }
 
   // Kamera – im Bosskampf fixiert
   const lock = (BOSS_X - 2) * TILE;
@@ -445,7 +486,8 @@ function updateBoss() {
 const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x | 0, y | 0, w, h); };
 function drawTile(t, x, y, cx) {
   switch (t) {
-    case '#': // Marmorboden
+    case '#': // Marmorboden / Teppich
+      if (LV && LV.bg === 'office' && state.mode !== 'title') { R(x, y, 16, 16, '#6a7a94'); R(x, y, 16, 2, '#8494ac'); if ((cx + (state.t >> 30)) % 2) R(x + 4, y + 8, 8, 1, '#5e6e88'); break; }
       R(x, y, 16, 16, '#d8d0c4'); R(x, y, 16, 2, '#f0eae0'); R(x, y + 2, 16, 1, '#b8ae9e');
       if (cx % 2) R(x + 3, y + 7, 6, 1, '#c4bcae'); else R(x + 8, y + 10, 5, 1, '#c4bcae'); break;
     case '=': // Rezeptionstresen
@@ -475,12 +517,36 @@ function drawTile(t, x, y, cx) {
       if (left) R(x, y - 6, 3, 9, '#8a8a84'); if (right) R(x + 13, y - 6, 3, 9, '#8a8a84'); // Steinpfosten außen
       if (!left && !right) { const h = 22 + ((state.t >> 2) % 3); R(x + 7, y - h, 2, h, '#bfe0ff'); R(x + 5, y - h - 2, 6, 2, '#e8f4ff'); R(x + 4, y - 8, 8, 5, '#7a7a74'); R(x + 3, y - 10, 4, 3, '#7a7a74'); R(x + 1, y - 7, 2, 4, '#7a7a74'); }
       break; }
-    case '-': // Galerie-Sims (Marmor, Goldkante, Geländer)
+    case 'D': // Schreibtisch
+      R(x, y + 3, 16, 3, '#c8a878'); R(x, y + 3, 16, 1, '#e0c090'); R(x + 1, y + 6, 3, 10, '#a08050'); R(x + 12, y + 6, 3, 10, '#a08050'); R(x + 5, y + 7, 6, 5, '#b09060'); R(x + 7, y + 9, 2, 1, '#333'); break;
+    case 'P': // Drucker
+      R(x + 1, y + 6, 14, 9, '#d8d8d0'); R(x + 2, y + 4, 12, 3, '#c0c0b8'); R(x + 4, y + 2, 8, 2, '#fff'); R(x + 3, y + 8, 10, 1, '#333'); R(x + 12, y + 10, 2, 2, (state.t >> 4) & 1 ? '#40e040' : '#e04040'); R(x + 1, y + 15, 14, 1, '#888'); break;
+    case 'A': // Aktenschrank
+      R(x, y, 16, 16, '#9aa0a8'); R(x, y, 16, 1, '#c0c6cc'); R(x + 1, y + 2, 14, 6, '#8a9098'); R(x + 1, y + 9, 14, 6, '#8a9098'); R(x + 6, y + 4, 4, 1, '#333'); R(x + 6, y + 11, 4, 1, '#333'); break;
+    case '-': // Galerie-Sims (Marmor, Goldkante) / Regalbrett im Büro
+      if (LV && LV.bg === 'office' && state.mode !== 'title') { R(x, y + 4, 16, 4, '#b0a890'); R(x, y + 4, 16, 1, '#d8d0b8'); R(x, y + 8, 16, 1, '#7a7460'); R(x + 1, y, 3, 4, '#5a6a80'); R(x + 5, y + 1, 4, 3, '#d04040'); R(x + 10, y, 5, 4, '#e0d8c0'); break; }
       R(x, y + 4, 16, 5, '#ece4d4'); R(x, y + 4, 16, 1, '#d8b040'); R(x, y + 8, 16, 1, '#b8ae9e'); R(x + 2, y, 1, 4, '#d8b040'); R(x + 9, y, 1, 4, '#d8b040'); R(x, y, 16, 1, '#d8b040'); break;
     case '|': if (state.bossActive || state.bossDone) { R(x + 6, y, 4, 16, '#8a2a2a'); R(x + 7, y, 2, 16, '#c04040'); } break; // Samtkordel
   }
 }
+function drawOffice() {
+  R(0, 0, W, H, '#dfe4ea'); R(0, 0, W, 14, '#c8ced6'); R(0, 14, W, 2, '#b0b8c2'); R(0, FLOOR * TILE - 4, W, 4, '#5a6a84');
+  const off = -(state.cam * 0.5) % 120;
+  for (let x = off - 120; x < W + 120; x += 120) {
+    R(x + 10, 30, 56, 60, '#8ab8e0'); R(x + 10, 30, 56, 2, '#fff'); R(x + 37, 30, 2, 60, '#fff'); R(x + 10, 58, 56, 2, '#fff'); R(x + 8, 28, 60, 2, '#fff'); R(x + 8, 90, 60, 3, '#f0f0f0'); // Fenster
+    R(x + 14, 34, 20, 8, '#c8e0f4'); // Wolke
+    R(x + 80, 4, 28, 4, '#fff8e0'); // Deckenleuchte
+    R(x + 78, 120, 34, 4, '#b8b8c0'); R(x + 80, 124, 3, 36, '#9a9aa4'); R(x + 106, 124, 3, 36, '#9a9aa4'); R(x + 88, 106, 14, 12, '#2a2a30'); R(x + 89, 107, 12, 10, '#3a78d8'); // Schreibtisch hinten
+  }
+  if (state.mode !== 'title' && state.cam < 300) { ctx.fillStyle = '#5a6a84'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left'; ctx.fillText('4. ETAGE', 60 - state.cam * 0.5, 50); }
+  const ex = EXIT_X * TILE - state.cam; // Tür IT-Lager
+  if (ex > -40 && ex < W) {
+    R(ex, 104, 32, 56, '#7a7a84'); R(ex + 2, 106, 28, 54, '#9a9aa8'); R(ex + 24, 132, 3, 3, '#333');
+    R(ex + 3, 92, 26, 10, '#fff'); text(T().exitDoor, ex + 16, 100, 6, '#222'); R(ex + 12, 112, 8, 6, '#c0e0ff');
+  }
+}
 function drawBackground() {
+  if (LV && LV.bg === 'office' && state.mode !== 'title') return drawOffice();
   R(0, 0, W, H, '#e8dcc4'); R(0, 0, W, 24, '#d8c8a8'); R(0, 24, W, 2, '#d8b040'); R(0, FLOOR * TILE - 6, W, 6, '#c8b890');
   // Säulen + Kronleuchter (Parallax 0.5)
   const off = -(state.cam * 0.5) % 96;
@@ -573,8 +639,9 @@ function render() {
   if (muted) text('M: AUS', 160, 9, 6, '#888', 'left');
   if (state.bossActive && boss.alive) { text(state.confuseCd > 0 ? '' : T().confuseHud, W / 2, 24, 7, state.t % 30 < 20 ? '#f8e060' : '#fff'); if (state.confuseCd > 0) R(W / 2 - 18, 21, 36 * (1 - state.confuseCd / 900), 2, '#f8e060');
     text(T().boss, W / 2, 9, 7, '#d8b040'); for (let i = 0; i < 5; i++) R(W / 2 - 24 + i * 10, 14, 8, 3, i < boss.hp ? '#e04040' : '#444'); }
-  if (state.msgT > 0) { R(0, 60, W, 22, 'rgba(0,0,0,.6)'); text(state.bossActive ? T().bossHint : T().start, W / 2, 74, 8, '#fff'); }
+  if (state.msgT > 0) { R(0, 60, W, 22, 'rgba(0,0,0,.6)'); text(state.bossActive ? T().bossHint : T()[LV.start], W / 2, 74, 8, '#fff'); }
   if (state.mode === 'dead') { R(0, 0, W, H, 'rgba(0,0,0,.6)'); text(T().gameover, W / 2, 60, 16, '#f06060'); text(`${T().score} ${state.score}   ${T().time} ${fmtTime(state.time)}`, W / 2, 78, 8); if (!nameForm.hidden) text(T().enterName, W / 2, 96, 8, '#f8e060'); else { drawHS(W / 2 - 60, 100); if (state.t > 60) text(T().retry, W / 2, 168, 8); } }
+  if (state.mode === 'next') { R(0, 0, W, H, 'rgba(0,0,0,.7)'); text(T().nextLevel, W / 2, 76, 16, '#d8b040'); text(T().levels[state.level + 1], W / 2, 98, 9); }
   if (state.mode === 'win') { R(0, 0, W, H, 'rgba(0,0,0,.6)'); text(T().win, W / 2, 50, 16, '#d8b040'); text(T().winsub, W / 2, 66, 8); text(`${T().time} ${fmtTime(state.time)}   ${T().timeBonus} +${state.bonus}`, W / 2, 80, 7); text(`${T().score} ${state.score}`, W / 2, 94, 8, '#f8e060'); if (!nameForm.hidden) text(T().enterName, W / 2, 110, 8, '#f8e060'); else { drawHS(W / 2 - 60, 108); if (state.t > 120) text(T().retry, W / 2, 168, 8); } }
   ctx.restore();
 }
