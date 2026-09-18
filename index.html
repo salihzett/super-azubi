@@ -693,10 +693,12 @@ function render() {
   for (let cy = 0; cy < ROWS; cy++) for (let cx = c0; cx <= c1 && cx < LEVEL_W; cx++) { const t = map[cy][cx]; if (t !== '.') drawTile(t, cx * TILE - state.cam, cy * TILE, cx); }
   for (const p of pickups) {
     const x = p.x - state.cam, y = p.y + Math.sin(state.t / 10 + p.x) * 1.5;
-    if (p.t === 'o') { // Goldmünze, leicht drehend (Breite pulsiert)
-      const w = 3 + Math.abs(Math.round(Math.cos(state.t / 12 + p.x) * 4)), cxm = x + 4;
-      R(cxm - w / 2 - 1, y, w + 2, 10, '#b8901c'); R(cxm - w / 2, y + 1, w, 8, '#f0c840'); R(cxm - w / 2, y + 1, w, 1, '#fff0a0');
-      if (w >= 6) { for (let i = 0; i < 3; i++) R(cxm - 3 + i * 2, y + 4, 1, 4, '#b8901c'); R(cxm - 3, y + 3, 5, 1, '#b8901c'); R(cxm - 1, y + 2, 1, 1, '#b8901c'); } // Tor: 3 Säulen, Dach, Quadriga
+    if (p.t === 'o') { // runde Goldmünze, dreht sich (Ellipse), Tor-Prägung wenn frontal
+      const rx = 1.5 + Math.abs(Math.cos(state.t / 12 + p.x)) * 3.5, cxm = x + 4, cym = y + 5;
+      ctx.fillStyle = '#b8901c'; ctx.beginPath(); ctx.ellipse(cxm, cym, rx + 0.8, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f0c840'; ctx.beginPath(); ctx.ellipse(cxm, cym, rx, 4.7, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff0a0'; ctx.beginPath(); ctx.ellipse(cxm - rx * 0.3, cym - 2, rx * 0.4, 1.2, 0, 0, Math.PI * 2); ctx.fill();
+      if (rx > 3.5) { for (let i = 0; i < 3; i++) R(cxm - 2.5 + i * 2, cym - 0.5, 1, 3.5, '#b8901c'); R(cxm - 2.5, cym - 1.5, 5, 1, '#b8901c'); R(cxm - 0.5, cym - 2.5, 1, 1, '#b8901c'); } // Tor: Säulen, Dach, Quadriga
     }
     else { R(x - 1, y + 1, 11, 7, '#5a2e12'); R(x, y + 2, 9, 5, '#7a4218'); R(x + 3, y + 2, 1, 5, '#5a2e12'); R(x + 6, y + 2, 1, 5, '#5a2e12'); R(x - 1, y + 1, 2, 7, '#d8b040'); R(x + 9, y + 1, 1, 7, '#d8b040'); } // Schokoriegel
   }
