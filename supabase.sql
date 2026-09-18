@@ -24,7 +24,7 @@ create policy "anyone can read" on scores for select using (true);
 -- KEINE insert/update/delete-Policy für anon: schreiben geht nur über die Funktionen unten.
 
 -- Aufräumen: alte Fake-Einträge
-delete from scores where score > 40000 or name in ('HACKERMAN', 'MEISTER', 'TEST');
+delete from scores where score > 50000 or name in ('HACKERMAN', 'MEISTER', 'TEST');
 
 -- Ticket beim Spielstart. Rate-Limit: max. 20 neue Spiele pro Minute insgesamt.
 create or replace function start_game() returns uuid
@@ -40,7 +40,7 @@ begin
 end $$;
 
 -- Ergebnis melden. Punkte werden hier berechnet, nicht im Browser.
--- Obergrenzen = was in beiden Leveln existiert (82 Kaffee, 57 Gegner, 4 Riegel, 5 Boss-Treffer).
+-- Obergrenzen = was in allen drei Leveln existiert (109 Münzen, 91 Gegner, 6 Riegel, 5 Boss-Treffer).
 create or replace function submit_score(
   session uuid, p_name text, coffee int, enemies int, choc int, boss_hits int, levels int, p_time int, p_win boolean
 ) returns int
@@ -52,15 +52,15 @@ begin
   elapsed := extract(epoch from now() - s.started_at)::int;
   if p_time < 1 or p_time > 3600 or p_time > elapsed + 5 then raise exception 'implausible time'; end if;
   if p_name !~ '^[A-ZÄÖÜ0-9 _.\-]{1,12}$' then raise exception 'bad name'; end if;
-  if coffee < 0 or coffee > 82 or enemies < 0 or enemies > 57 or choc < 0 or choc > 4
-     or boss_hits < 0 or boss_hits > 5 or levels < 0 or levels > 2 then raise exception 'implausible counts'; end if;
-  -- Mindestzeit: Level 1 dauert mindestens ~45 s, beide Level ~90 s (Laufweg / Geschwindigkeit)
-  min_time := case when p_win then 90 when levels >= 1 then 45 else 0 end;
+  if coffee < 0 or coffee > 109 or enemies < 0 or enemies > 91 or choc < 0 or choc > 6
+     or boss_hits < 0 or boss_hits > 5 or levels < 0 or levels > 3 then raise exception 'implausible counts'; end if;
+  -- Mindestzeit: Level 1 mindestens ~45 s, alle drei ~135 s (Laufweg / Geschwindigkeit)
+  min_time := case when p_win then 135 when levels >= 2 then 90 when levels >= 1 then 45 else 0 end;
   if p_time < min_time then raise exception 'too fast'; end if;
-  if p_win and (levels < 1 or boss_hits < 5) then raise exception 'win without finishing'; end if;
+  if p_win and (levels < 3 or boss_hits < 5) then raise exception 'win without finishing'; end if;
   total := coffee * 100 + enemies * 200 + choc * 500 + boss_hits * 1000
          + case when boss_hits >= 5 then 3000 else 0 end
-         + case when levels >= 1 then 1000 else 0 end
+         + least(levels, 2) * 1000
          + case when p_win then greatest(0, 600 - p_time) * 10 else 0 end;
   update game_sessions set used = true where id = session;
   insert into scores (name, score, time, win) values (p_name, total, p_time, p_win);
