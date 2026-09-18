@@ -26,6 +26,8 @@
 <div id="touch"><div id="tl">◀</div><div id="tr">▶</div><div id="tj">▲</div><div id="tv">V</div></div>
 <script>
 'use strict';
+// Ganzes Spiel in einer Closure: Zustand ist nicht über window erreichbar (kein state.score = … in der Konsole).
+(() => {
 // ───────────────────────── i18n ─────────────────────────
 // Alle Texte hier. Sprache: ?lang=en, localStorage oder Taste L im Titel.
 const STR = {
@@ -591,7 +593,7 @@ function text(s, x, y, size = 8, col = '#fff', align = 'center') {
 function drawHS(x, y, n = 7) {
   const hs = (hsCache || loadHS()).slice(0, n); if (!hs.length) return;
   R(x - 4, y - 9, 124, 8 + hs.length * 8, 'rgba(0,0,0,.55)'); text(T().best, x, y, 7, '#d8b040', 'left');
-  hs.forEach((h, i) => text(`${i + 1}. ${h.name.padEnd(12)} ${String(h.score).padStart(6)} ${fmtTime(h.time * 60)}${h.win ? '' : '†'}`, x, y + 9 + i * 8, 6, i === 0 ? '#f8e060' : '#fff', 'left'));
+  hs.forEach((h, i) => text(`${i + 1}. ${String(h.name).slice(0, 12).padEnd(12)} ${String(h.score).padStart(6)} ${fmtTime(h.time * 60)}${h.win ? '' : '†'}`, x, y + 9 + i * 8, 6, i === 0 ? '#f8e060' : '#fff', 'left'));
 }
 function render() {
   ctx.setTransform(RS, 0, 0, RS, 0, 0);
@@ -666,6 +668,7 @@ function loop(now) {
   render(); requestAnimationFrame(loop);
 }
 resetState(); requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
