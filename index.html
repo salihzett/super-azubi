@@ -203,7 +203,7 @@ const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: 
 function resetState() {
   for (const k in keys) keys[k] = false; startPressed = false; nameForm.hidden = true;
   refreshHS();
-  state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0 };
+  state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0, cnt: { coffee: 0, enemies: 0, choc: 0, boss: 0, levels: 0 }, session: null };
 }
 function startLevel(i = 0) {
   player.idleT = 0; player.asleep = false;
@@ -352,9 +352,15 @@ async function refreshHS() {
     if (r.ok) hsCache = await r.json();
   } catch {}
 }
+// Server-Ticket beim Start; am Ende nur Zählwerte melden – die DB rechnet die Punkte selbst (siehe supabase.sql).
+async function startSession() {
+  state.session = null; if (!SUPABASE.url) return;
+  try { const r = await fetch(`${SUPABASE.url}/rest/v1/rpc/start_game`, { method: 'POST', headers: sbHeaders(), body: '{}' }); if (r.ok) state.session = await r.json(); } catch {}
+}
 async function saveHSRemote(entry) {
-  if (!SUPABASE.url) return;
-  try { await fetch(`${SUPABASE.url}/rest/v1/scores`, { method: 'POST', headers: { ...sbHeaders(), Prefer: 'return=minimal' }, body: JSON.stringify(entry) }); } catch {}
+  if (!SUPABASE.url || !state.session) return;
+  const c = state.cnt, body = { session: state.session, p_name: entry.name, coffee: c.coffee, enemies: c.enemies, choc: c.choc, boss_hits: c.boss, levels: c.levels, p_time: entry.time, p_win: entry.win };
+  try { await fetch(`${SUPABASE.url}/rest/v1/rpc/submit_score`, { method: 'POST', headers: sbHeaders(), body: JSON.stringify(body) }); } catch {}
 }
 const loadHS = () => { try { return JSON.parse(localStorage.getItem(HS_KEY)) || []; } catch { return []; } };
 function saveHS(name) {
@@ -373,7 +379,7 @@ function puff(x, y, col, n = 6) { for (let i = 0; i < n; i++) particles.push({ x
 
 function update() {
   state.t++;
-  if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; startLevel(0); } startPressed = false; return; }
+  if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; startLevel(0); startSession(); } startPressed = false; return; }
   if (state.mode === 'next') { if (state.t > 150) startLevel(state.level + 1); return; }
   if (state.mode === 'dead') { if (state.t > 60 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
   if (state.mode === 'win') { if (state.t > 120 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
@@ -407,7 +413,7 @@ function update() {
   // Pickups
   pickups = pickups.filter(p => {
     if (overlap(player, { x: p.x - 2, y: p.y - 2, w: 12, h: 12, ox: 0 })) {
-      if (p.t === 'o') { state.score += 100; SFX.coin(); } else { state.lives++; state.score += 500; SFX.life(); }
+      if (p.t === 'o') { state.score += 100; state.cnt.coffee++; SFX.coin(); } else { state.lives++; state.score += 500; state.cnt.choc++; SFX.life(); }
       puff(p.x + 4, p.y + 4, '#d8b040'); return false;
     }
     return true;
@@ -429,8 +435,8 @@ function update() {
 
   if (state.bossDone && player.x > EXIT_X * TILE) {
     state.t = 0; startPressed = false; SFX.win();
-    if (state.level + 1 < LEVELS.length) { state.mode = 'next'; state.score += 1000; }
-    else { state.mode = 'win'; state.bonus = Math.max(0, 600 - Math.floor(state.time / 60)) * 10; state.score += state.bonus; askName(); }
+    if (state.level + 1 < LEVELS.length) { state.mode = 'next'; state.score += 1000; state.cnt.levels = state.level + 1; }
+    else { state.mode = 'win'; state.cnt.levels = LEVELS.length; state.bonus = Math.max(0, 600 - Math.floor(state.time / 60)) * 10; state.score += state.bonus; askName(); }
   }
 
   // Kamera – im Bosskampf fixiert
@@ -457,7 +463,7 @@ function updateEnemy(en, lines) {
   if (en.bubbleT > 0) en.bubbleT--;
   if (en.t !== 'g' && overlap(player, en)) { // Gäste: nur Deko
     if (player.vy > 0 && player.y + player.h < en.y + en.h * 0.45) {
-      en.alive = false; player.vy = -4; state.score += 200; SFX.stomp(); puff(en.x + 7, en.y + 16, '#fff'); say(player, T().azubiStomp);
+      en.alive = false; player.vy = -4; state.score += 200; state.cnt.enemies++; SFX.stomp(); puff(en.x + 7, en.y + 16, '#fff'); say(player, T().azubiStomp);
     } else hurtPlayer();
   }
 }
@@ -481,7 +487,7 @@ function updateBoss() {
     if (fromAbove) {
       player.vy = -4.5; // immer abprallen, auch wenn Boss gerade unverwundbar
       if (b.inv === 0) {
-        b.hp--; b.inv = 60; player.inv = Math.max(player.inv, 40); state.score += 1000; SFX.hit(); state.shake = 6; puff(b.x + 15, b.y, '#fff', 10);
+        b.hp--; b.inv = 60; player.inv = Math.max(player.inv, 40); state.score += 1000; state.cnt.boss++; SFX.hit(); state.shake = 6; puff(b.x + 15, b.y, '#fff', 10);
         if (b.hp <= 0) { b.alive = false; state.bossDone = true; state.bossActive = false; state.score += 3000; puff(b.x + 15, b.y + 20, '#f8e060', 20); SFX.win(); }
       }
     } else if (b.inv === 0 && !b.confused && player.vy >= 0) hurtPlayer(); // Boss blinkt/verwirrt = keine Gefahr; beim Hochspringen auch nicht
