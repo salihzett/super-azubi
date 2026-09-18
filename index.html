@@ -47,7 +47,7 @@ const STR = {
     attic: ['Das VLAN ist weg!', 'Warum blinkt der Switch rot?', 'Wer hat das Kabel gezogen?', 'Der Server ist heiß!', 'Ping geht nicht!', 'Port 24 ist tot!', 'Backup läuft seit 3 Tagen!', 'Ich hab nur kurz neu gestartet…', 'Der Core ist down!', 'Wo ist Patchkabel Nr. 47?', 'DHCP vergibt nichts mehr!', 'Ist das hier Produktion?', 'Die USV piept!', 'Das ist nicht mein Rack!', 'Firmware-Update hängt bei 99%!'],
     office: ['Rechner geht nicht an!', 'Monitor geht nicht an!', 'Acrobat geht nicht!', 'Scanner geht nicht!', 'Drucker geht nicht!', 'Maus geht nicht!', 'Headset funktioniert nicht!', 'Passwort vergessen!', 'Kannst du mal kurz schauen?', 'Das ging gestern noch!', 'Ich hab nichts gemacht!', 'Excel ist eingefroren!', 'Samfex-Auftrag ist da!', 'Die Telefone funktionieren nicht!', 'Akku tauschen, bitte!', 'Teams hört mich nicht!'],
     phone: ['Chef: Wo bist du schon wieder?', 'Chef: Paket muss abgeholt werden!', 'Chef: Samfex-Auftrag!', 'Chef: Der Beamer in Raum 3 geht nicht!', 'Chef: Bring mal Kaffee mit!', 'Chef: Warum antwortest du nicht auf Teams?', 'Chef: Akku vom Handscanner tauschen!', 'Chef: Drucker im 2. Stock, sofort!', 'Chef: Wo ist das Netzwerkkabel hin?', 'Chef: Ticket 4711 ist noch offen!'],
-    confuseHud: 'V = VERWIRREN', confused: '???', time: 'ZEIT', timeBonus: 'ZEITBONUS', best: 'BESTENLISTE', enterName: 'Name eingeben!',
+    practice: 'ÜBUNG – ohne Wertung', confuseHud: 'V = VERWIRREN', confused: '???', time: 'ZEIT', timeBonus: 'ZEITBONUS', best: 'BESTENLISTE', enterName: 'Name eingeben!',
     azubiHurt: ['Ich bin nur Azubi!', 'Nicht mein Ticket!', 'Das ist Second Level!', 'Ich hab Mittagspause!', 'Frag den Helpdesk!', 'Autsch, Ticket-Flut!'],
   },
   en: {
@@ -64,7 +64,7 @@ const STR = {
     attic: ['The VLAN is gone!', 'Why is the switch blinking red?', 'Who pulled the cable?', 'The server is hot!', 'Ping is dead!', 'Port 24 is dead!', 'Backup running for 3 days!', 'I only rebooted it…', 'The core is down!', 'Where is patch cable no. 47?', 'The UPS is beeping!', 'Firmware update stuck at 99%!'],
     office: ['PC won\'t turn on!', 'Monitor won\'t turn on!', 'Acrobat won\'t open!', 'Scanner is dead!', 'Printer won\'t print!', 'Mouse is dead!', 'Headset doesn\'t work!', 'Forgot my password!', 'Can you take a quick look?', 'It worked yesterday!', 'I didn\'t do anything!', 'Excel froze!'],
     phone: ['Boss: Where are you again?', 'Boss: Parcel needs picking up!', 'Boss: Samfex order!', 'Boss: Projector in room 3 is dead!', 'Boss: Bring coffee!', 'Boss: Why no answer on Teams?', 'Boss: Ticket 4711 still open!'],
-    confuseHud: 'V = CONFUSE', confused: '???', time: 'TIME', timeBonus: 'TIME BONUS', best: 'HIGH SCORES', enterName: 'Enter your name!',
+    practice: 'PRACTICE – no ranking', confuseHud: 'V = CONFUSE', confused: '???', time: 'TIME', timeBonus: 'TIME BONUS', best: 'HIGH SCORES', enterName: 'Enter your name!',
     azubiHurt: ['I\'m just a trainee!', 'Not my ticket!', 'That\'s second level!', 'I\'m on lunch break!', 'Ask the helpdesk!'],
   },
 };
@@ -334,9 +334,16 @@ addEventListener('keydown', e => {
   if (e.key === 'v' || e.key === 'V' || e.code === 'KeyV') confuse();
   if (e.key === 'm' || e.key === 'M' || e.code === 'KeyM') toggleMute();
   if (e.key === 'Escape') resetState(); // ESC = zurück zum Titel
-  if (e.key === 'l' && state.mode === 'title') { lang = lang === 'de' ? 'en' : 'de'; localStorage.setItem('lang', lang); }
+  if ((e.key === 'l' || e.key === 'L') && !e.repeat) { lHeld = true; lUsed = false; }
+  if (lHeld && state.mode === 'title' && /^[1-3]$/.test(e.key)) {
+    lUsed = true; state.score = 0; state.lives = 3; state.practice = +e.key > 1; startLevel(+e.key - 1); if (!state.practice) startSession();
+  }
 });
-addEventListener('keyup', e => { const k = KEYMAP[e.key]; if (k) keys[k] = false; });
+addEventListener('keyup', e => {
+  const k = KEYMAP[e.key]; if (k) keys[k] = false;
+  if ((e.key === 'l' || e.key === 'L') && lHeld) { lHeld = false; if (!lUsed && state.mode === 'title') { lang = lang === 'de' ? 'en' : 'de'; localStorage.setItem('lang', lang); } }
+});
+let lHeld = false, lUsed = false;
 for (const [id, k] of [['tl', 'left'], ['tr', 'right'], ['tj', 'jump']]) {
   const el = document.getElementById(id);
   el.addEventListener('touchstart', e => { e.preventDefault(); down(k); }, { passive: false });
@@ -404,7 +411,8 @@ function saveHS(name) {
   try { localStorage.setItem('superazubi_name', name); } catch {}
 }
 const nameForm = document.getElementById('nameform'), nameInput = document.getElementById('name');
-function askName() { nameInput.value = localStorage.getItem('superazubi_name') || ''; nameForm.hidden = false; setTimeout(() => nameInput.focus(), 50); }
+function askName() {
+  if (state.practice) return; nameInput.value = localStorage.getItem('superazubi_name') || ''; nameForm.hidden = false; setTimeout(() => nameInput.focus(), 50); }
 nameForm.addEventListener('submit', e => { e.preventDefault(); if (state.saved) return; const n = nameInput.value.trim().toUpperCase().slice(0, 12) || '???'; saveHS(n); nameForm.hidden = true; state.saved = true; });
 nameInput.addEventListener('keydown', e => e.stopPropagation()); // Tasten nicht ans Spiel durchreichen
 const fmtTime = f => { const sec = Math.floor(f / 60); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
@@ -412,7 +420,7 @@ function puff(x, y, col, n = 6) { for (let i = 0; i < n; i++) particles.push({ x
 
 function update() {
   state.t++;
-  if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; startLevel(DEBUG_LEVEL); startSession(); } startPressed = false; return; }
+  if (state.mode === 'title') { if (startPressed && state.t > 30) { state.score = 0; state.lives = 3; state.practice = false; startLevel(DEBUG_LEVEL); startSession(); } startPressed = false; return; }
   if (state.mode === 'next') { if (state.t > 150) startLevel(state.level + 1); return; }
   if (state.mode === 'dead') { if (state.t > 60 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
   if (state.mode === 'win') { if (state.t > 120 && startPressed && nameForm.hidden) resetState(); startPressed = false; return; }
@@ -720,6 +728,7 @@ function render() {
   text(`${T().lives} ${'♥'.repeat(Math.max(0, state.lives))}`, W - 4, 9, 7, '#f06060', 'right');
   text(fmtTime(state.time), 120, 9, 7, '#fff', 'left');
   if (muted) text('M: AUS', 160, 9, 6, '#888', 'left');
+  if (state.practice) text(T().practice, 200, 9, 6, '#f8e060', 'left');
   if (state.bossActive && boss.alive) { text(state.confuseCd > 0 ? '' : T().confuseHud, W / 2, 24, 7, state.t % 30 < 20 ? '#f8e060' : '#fff'); if (state.confuseCd > 0) R(W / 2 - 18, 21, 36 * (1 - state.confuseCd / 900), 2, '#f8e060');
     text(T().boss, W / 2, 9, 7, '#d8b040'); for (let i = 0; i < 5; i++) R(W / 2 - 24 + i * 10, 14, 8, 3, i < boss.hp ? '#e04040' : '#444'); }
   if (state.msgT > 0) { R(0, 60, W, 22, 'rgba(0,0,0,.6)'); text(state.bossActive ? T().bossHint : T()[LV.start], W / 2, 74, 8, '#fff'); }
