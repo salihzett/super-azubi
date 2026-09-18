@@ -280,10 +280,17 @@ function beep(f, dur, type = 'square', vol = 0.08, slide = 0) {
 // ───────────────────────── Musik (Chiptune-Loop, eigene Melodie) ─────────────────────────
 // 16tel-Schritte, MIDI-Nummern, 0 = Pause. Lead 4 Takte, Bass 2 Takte (wird wiederholt).
 const MUSIC = {
-  lead: [72,0,76,0, 79,0,76,79, 81,0,79,76, 74,0,0,0,  71,0,74,0, 77,0,74,77, 79,0,77,74, 72,0,0,0,
-         72,0,76,0, 79,0,76,79, 84,0,83,81, 79,0,0,0,  81,79,77,76, 74,0,77,76, 74,0,71,0, 72,0,0,0],
-  bass: [48,0,48,0, 55,0,55,0, 53,0,53,0, 55,0,55,0,  43,0,43,0, 50,0,50,0, 53,0,53,0, 55,0,55,0],
+  lobby: { bpm: 150, leadType: 'square', leadVol: 0.025, drums: true,
+    lead: [72,0,76,0, 79,0,76,79, 81,0,79,76, 74,0,0,0,  71,0,74,0, 77,0,74,77, 79,0,77,74, 72,0,0,0,
+           72,0,76,0, 79,0,76,79, 84,0,83,81, 79,0,0,0,  81,79,77,76, 74,0,77,76, 74,0,71,0, 72,0,0,0],
+    bass: [48,0,48,0, 55,0,55,0, 53,0,53,0, 55,0,55,0,  43,0,43,0, 50,0,50,0, 53,0,53,0, 55,0,55,0] },
+  // Dachboden: langsam, a-Moll, Dreieck-Lead, tiefer Drone, keine Drums – geheimnisvoll
+  attic: { bpm: 84, leadType: 'triangle', leadVol: 0.035, drums: false,
+    lead: [69,0,0,0, 72,0,0,0, 76,0,0,75, 0,0,0,0,  0,0,0,0, 74,0,0,0, 72,0,0,0, 69,0,0,0,
+           0,0,0,0, 68,0,0,0, 69,0,72,0, 0,0,0,0,  81,0,0,0, 80,0,0,0, 76,0,0,0, 0,0,0,0],
+    bass: [33,0,0,0, 0,0,0,0, 33,0,0,0, 0,0,0,0,  40,0,0,0, 0,0,0,0, 32,0,0,0, 0,0,0,0] },
 };
+MUSIC.office = MUSIC.lobby;
 const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 let musicStep = 0, musicNext = 0;
 function note(f, t, dur, type, vol) {
@@ -293,15 +300,15 @@ function note(f, t, dur, type, vol) {
 }
 function musicTick() {
   if (!AC) return;
-  const bpm = state.bossActive ? 185 : 150, step = 60 / bpm / 4;
+  const M = MUSIC[(LV && LV.bg) || 'lobby'], bpm = state.bossActive ? 185 : M.bpm, step = 60 / bpm / 4;
   if (musicNext < AC.currentTime) musicNext = AC.currentTime;
   while (musicNext < AC.currentTime + 0.15) {
     if (state.mode === 'play' && !muted) {
-      const l = MUSIC.lead[musicStep % MUSIC.lead.length], b = MUSIC.bass[musicStep % MUSIC.bass.length];
-      if (l) note(midi(l), musicNext, step * 1.8, 'square', 0.025);
-      if (b) note(midi(b), musicNext, step * 1.5, 'triangle', 0.05);
-      if (musicStep % 4 === 0) note(60, musicNext, 0.05, 'sine', 0.06); // Kick
-      if (musicStep % 8 === 4) note(3000, musicNext, 0.03, 'square', 0.012); // Hat
+      const l = M.lead[musicStep % M.lead.length], b = M.bass[musicStep % M.bass.length];
+      if (l) note(midi(l), musicNext, step * (M.drums ? 1.8 : 3.5), M.leadType, M.leadVol);
+      if (b) note(midi(b), musicNext, step * (M.drums ? 1.5 : 7), 'triangle', M.drums ? 0.05 : 0.07);
+      if (M.drums && musicStep % 4 === 0) note(60, musicNext, 0.05, 'sine', 0.06); // Kick
+      if (M.drums && musicStep % 8 === 4) note(3000, musicNext, 0.03, 'square', 0.012); // Hat
     }
     musicStep++; musicNext += step;
   }
