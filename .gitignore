@@ -1,3 +1,5 @@
 .claude-flow/
 .claude/*
 !.claude/launch.json
+ruvector.db
+*.db
