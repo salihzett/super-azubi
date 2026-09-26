@@ -232,14 +232,14 @@ function mkEnemy(t, cx, cy) {
     vx: 0, vy: 0, dir: -1, alive: true, deadT: 0, bubble: '', bubbleT: 0, sayT: 60 + Math.random() * 120,
     hp: 5, inv: 0, callT: 240, anim: 0, confused: 0, ground: false, hitWall: false };
 }
-const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: false, inv: 0, anim: 0, hitWall: false, bubble: '', bubbleT: 0, ringT: 0, idleT: 0 };
+const player = { x: 0, y: 0, vx: 0, vy: 0, w: 14, h: 38, ox: 0, dir: 1, ground: false, inv: 0, anim: 0, hitWall: false, bubble: '', bubbleT: 0, ringT: 0, idleT: 0, beamT: 0, beamCd: 0 };
 function resetState() {
   for (const k in keys) keys[k] = false; startPressed = false; nameForm.hidden = true;
   refreshHS();
   state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0, cnt: { coffee: 0, enemies: 0, choc: 0, boss: 0, levels: 0 }, session: null };
 }
 function startLevel(i = 0) {
-  player.idleT = 0; player.asleep = false;
+  player.idleT = 0; player.asleep = false; player.beamT = 0; player.beamCd = 0;
   state.level = i; LV = LEVELS[i]; LEVEL_W = LV.width; BOSS_X = LV.bossX; EXIT_X = LV.exitX;
   buildLevel(); shots = []; particles = [];
   player.x = 2 * TILE; player.y = FLOOR * TILE - player.h; player.vx = player.vy = 0; player.dir = 1; player.inv = 0;
@@ -339,6 +339,11 @@ const KEYMAP = { ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', 
 addEventListener('keydown', e => {
   const k = KEYMAP[e.key]; if (k) { e.preventDefault(); down(k); }
   if (e.key === 'v' || e.key === 'V' || e.code === 'KeyV') confuse();
+  if ((e.key === 'k' || e.key === 'K' || e.code === 'KeyK') && !e.repeat) {
+    const now = performance.now();
+    kTaps = kTaps.filter(t => now - t < 1500); kTaps.push(now);
+    if (kTaps.length >= 3) { kTaps = []; chargeBeam(); }
+  }
   if (e.key === 'm' || e.key === 'M' || e.code === 'KeyM') toggleMute();
   if (e.key === 'Escape') resetState(); // ESC = zurück zum Titel
   if ((e.key === 'l' || e.key === 'L') && !e.repeat) { lHeld = true; lUsed = false; }
@@ -376,6 +381,33 @@ function hurtPlayer() {
   if (player.inv > 0) return;
   state.lives--; player.inv = 120; player.vy = -3.5; state.shake = 8; SFX.hurt(); say(player, T().azubiHurt);
   if (state.lives <= 0) die();
+}
+let kTaps = [];
+// Versteckt: dreimal K = Energiestrahl. Lädt kurz auf, feuert in Blickrichtung, räumt alles auf seiner Bahn ab.
+function chargeBeam() {
+  if (state.mode !== 'play' || player.beamT || player.beamCd > 0) return;
+  player.beamT = 1; player.beamCd = 600; state.shake = 4;
+  [110, 140, 175, 220].forEach((f, i) => setTimeout(() => beep(f, 0.5, 'sine', 0.05, 40), i * 180));
+}
+function fireBeam() {
+  player.beamHit = true; state.shake = 12;
+  beep(90, 0.9, 'sawtooth', 0.12, 260); beep(700, 0.8, 'square', 0.05, -500);
+  const y0 = player.y + 6, y1 = player.y + 26, dir = player.dir;
+  for (const en of enemies) {
+    if (!en.alive || en.t === 'g') continue;
+    const ahead = dir > 0 ? en.x > player.x : en.x < player.x;
+    if (ahead && Math.abs(en.x - player.x) < 260 && en.y + en.h > y0 && en.y < y1) {
+      en.alive = false; state.score += 200; state.cnt.enemies++; puff(en.x + 7, en.y + 16, '#9ef0ff', 10);
+    }
+  }
+  if (state.bossActive && boss && boss.alive && boss.inv === 0) {
+    const ahead = dir > 0 ? boss.x > player.x : boss.x < player.x;
+    if (ahead && Math.abs(boss.x - player.x) < 260) {
+      boss.hp--; boss.inv = 60; state.score += 1000; state.cnt.boss++; puff(boss.x + 15, boss.y + 10, '#9ef0ff', 16);
+      if (boss.hp <= 0) { boss.alive = false; state.bossDone = true; state.bossActive = false; state.score += 3000; SFX.win(); }
+    }
+  }
+  for (let i = 0; i < 24; i++) particles.push({ x: player.x + 8 + dir * (20 + Math.random() * 240), y: player.y + 10 + Math.random() * 14, vx: dir * (1 + Math.random() * 3), vy: (Math.random() - .5) * 2, t: 20 + Math.random() * 20, col: Math.random() < .5 ? '#9ef0ff' : '#fff' });
 }
 function confuse() {
   if (state.mode !== 'play' || !state.bossActive || !boss.alive || state.confuseCd > 0) return;
@@ -447,6 +479,12 @@ function update() {
   moveBody(player);
   if (player.inv > 0) player.inv--;
   if (player.bubbleT > 0) player.bubbleT--;
+  if (player.beamCd > 0) player.beamCd--;
+  if (player.beamT) { // 1-40 laden, 41-75 feuern
+    player.beamT++; player.vx = 0; player.idleT = 0;
+    if (player.beamT === 41) fireBeam();
+    if (player.beamT > 75) { player.beamT = 0; player.beamHit = false; }
+  }
   player.idleT = (keys.left || keys.right || keys.jump || !player.ground) ? 0 : player.idleT + 1;
   player.asleep = player.idleT > 300; // 5 s ohne Eingabe -> Nickerchen
   // Handy des Azubis klingelt alle ~8 s – reiner Stressfaktor, keine Wirkung
@@ -718,6 +756,21 @@ function render() {
     if (boss.bubbleT > 0 && boss.alive) bubble(boss.bubble, boss.x - state.cam + 15, boss.y - 2);
     if (boss.alive && boss.callT < 40 && (state.t & 4)) text('☎', boss.x - state.cam + 40, boss.y + 4, 10, '#e04040');
     if (boss.confused) for (let i = 0; i < 3; i++) { const a = state.t / 12 + i * 2.1; text('✦', boss.x - state.cam + 15 + Math.cos(a) * 14, boss.y - 2 + Math.sin(a) * 4, 8, '#f8e060'); }
+  }
+  if (player.beamT) {
+    const px = player.x - state.cam + 7 + player.dir * 8, py = player.y + 14, charge = Math.min(player.beamT, 40) / 40;
+    if (player.beamT <= 40) { // Energieball in den Händen
+      const r = 2 + charge * 5;
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#3aa0ff'; ctx.beginPath(); ctx.arc(px, py, r + 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#9ef0ff'; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, r * 0.5, 0, Math.PI * 2); ctx.fill();
+      for (let i = 0; i < 6; i++) { const a = state.t / 4 + i, d = 14 - charge * 10; R(px + Math.cos(a) * d, py + Math.sin(a) * d, 2, 2, '#9ef0ff'); }
+    } else { // Strahl
+      const t = (player.beamT - 41) / 34, h = 14 * (1 - t * t), len = 260, x0 = player.dir > 0 ? px : px - len;
+      ctx.globalAlpha = 0.35; R(x0, py - h - 3, len, h * 2 + 6, '#3aa0ff'); ctx.globalAlpha = 1;
+      R(x0, py - h, len, h * 2, '#9ef0ff'); R(x0, py - h * 0.45, len, h * 0.9, '#fff');
+      ctx.globalAlpha = 0.6; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, h + 4, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+    }
   }
   for (const s of shots) { ctx.save(); ctx.translate(s.x - state.cam, s.y); ctx.rotate(s.r); R(-3, -3, 7, 7, '#f8e060'); R(-2, -1, 4, 1, '#888'); ctx.restore(); }
   if (player.asleep && state.mode === 'play') {
