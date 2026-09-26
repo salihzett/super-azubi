@@ -438,9 +438,13 @@ async function startSession() {
   try { const r = await fetch(`${SUPABASE.url}/rest/v1/rpc/start_game`, { method: 'POST', headers: sbHeaders(), body: '{}' }); if (r.ok) state.session = await r.json(); } catch {}
 }
 async function saveHSRemote(entry) {
-  if (!SUPABASE.url || !state.session) return;
-  const c = state.cnt, body = { session: state.session, p_name: entry.name, coffee: c.coffee, enemies: c.enemies, choc: c.choc, boss_hits: c.boss, levels: c.levels, p_time: entry.time, p_win: entry.win };
-  try { await fetch(`${SUPABASE.url}/rest/v1/rpc/submit_score`, { method: 'POST', headers: sbHeaders(), body: JSON.stringify(body) }); } catch {}
+  if (!SUPABASE.url) return;
+  if (state.session) { // regulärer Weg: Server rechnet die Punkte selbst
+    const c = state.cnt, body = { session: state.session, p_name: entry.name, coffee: c.coffee, enemies: c.enemies, choc: c.choc, boss_hits: c.boss, levels: c.levels, p_time: entry.time, p_win: entry.win };
+    try { const r = await fetch(`${SUPABASE.url}/rest/v1/rpc/submit_score`, { method: 'POST', headers: sbHeaders(), body: JSON.stringify(body) }); if (r.ok) return; } catch {}
+  }
+  // ponytail: Fallback, solange die Server-Funktionen aus supabase.sql fehlen – sonst ginge der Eintrag verloren
+  try { await fetch(`${SUPABASE.url}/rest/v1/scores`, { method: 'POST', headers: { ...sbHeaders(), Prefer: 'return=minimal' }, body: JSON.stringify(entry) }); } catch {}
 }
 const loadHS = () => { try { return JSON.parse(localStorage.getItem(HS_KEY)) || []; } catch { return []; } };
 function saveHS(name) {
@@ -711,7 +715,7 @@ function text(s, x, y, size = 8, col = '#fff', align = 'center') {
   ctx.fillStyle = '#000'; ctx.fillText(s, x + 1, y + 1); ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.textAlign = 'left';
 }
 
-function drawHS(x, y, n = 7) {
+function drawHS(x, y, n = 5) {
   const hs = (hsCache || loadHS()).slice(0, n); if (!hs.length) return;
   R(x - 4, y - 9, 124, 8 + hs.length * 8, 'rgba(0,0,0,.55)'); text(T().best, x, y, 7, '#d8b040', 'left');
   hs.forEach((h, i) => text(`${i + 1}. ${String(h.name).slice(0, 12).padEnd(12)} ${String(h.score).padStart(6)} ${fmtTime(h.time * 60)}${h.win ? '' : '†'}`, x, y + 9 + i * 8, 6, i === 0 ? '#f8e060' : '#fff', 'left'));
@@ -726,7 +730,7 @@ function render() {
     ctx.save(); ctx.translate(W / 2, FLOOR * TILE); ctx.scale(2 / RS, 2 / RS); ctx.drawImage(SPR.azubi.img, 0, 0, SPR.azubi.fw, SPR.azubi.fh, -SPR.azubi.fw / 2, -SPR.azubi.fh, SPR.azubi.fw, SPR.azubi.fh); ctx.restore();
     text(T().title, W / 2, 44, 16, '#d8b040'); text(T().sub, W / 2, 60, 8);
     if (state.t % 60 < 40) text(T().press, W / 2, 150, 8);
-    text(T().lang, W / 2, 170, 6, '#555'); drawHS(196, 92, 5); ctx.restore(); return;
+    text(T().lang, W / 2, 170, 6, '#555'); drawHS(196, 92); ctx.restore(); return;
   }
   const c0 = Math.floor(state.cam / TILE), c1 = c0 + W / TILE + 1;
   for (let cy = 0; cy < ROWS; cy++) for (let cx = c0; cx <= c1 && cx < LEVEL_W; cx++) { const t = map[cy][cx]; if (t !== '.') drawTile(t, cx * TILE - state.cam, cy * TILE, cx); }
