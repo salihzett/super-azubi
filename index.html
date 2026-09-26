@@ -771,7 +771,7 @@ function render() {
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, r * 0.5, 0, Math.PI * 2); ctx.fill();
       for (let i = 0; i < 6; i++) { const a = state.t / 4 + i, d = 14 - charge * 10; R(px + Math.cos(a) * d, py + Math.sin(a) * d, 2, 2, '#9ef0ff'); }
     } else if (fr === 3) { // Strahl
-      const t = (player.beamT - 47) / 28, h = 14 * (1 - t * t), len = 260, x0 = player.dir > 0 ? px : px - len;
+      const t = Math.min(1, (player.beamT - 47) / 28), h = Math.max(0.5, 14 * (1 - t * t)), len = 260, x0 = player.dir > 0 ? px : px - len;
       ctx.globalAlpha = 0.35; R(x0, py - h - 3, len, h * 2 + 6, '#3aa0ff'); ctx.globalAlpha = 1;
       R(x0, py - h, len, h * 2, '#9ef0ff'); R(x0, py - h * 0.45, len, h * 0.9, '#fff');
       ctx.globalAlpha = 0.6; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, h + 4, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
@@ -811,8 +811,9 @@ addEventListener('resize', fit); fit();
 let acc = 0, last = performance.now();
 function loop(now) {
   acc += Math.min(now - last, 100); last = now;
-  while (acc >= 1000 / 60) { update(); acc -= 1000 / 60; } // fester Zeitschritt, unabhängig von Bildrate
-  render(); requestAnimationFrame(loop);
+  try { while (acc >= 1000 / 60) { update(); acc -= 1000 / 60; } } catch (e) { console.error(e); } // fester Zeitschritt, unabhängig von Bildrate
+  try { render(); } catch (e) { console.error(e); ctx.restore(); } // ein Zeichenfehler darf das Spiel nicht anhalten
+  requestAnimationFrame(loop);
 }
 resetState(); requestAnimationFrame(loop);
 })();
