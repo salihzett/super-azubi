@@ -242,7 +242,7 @@ function resetState() {
   state = { mode: 'title', score: 0, lives: 3, t: 0, cam: 0, bossActive: false, bossDone: false, msgT: 0, shake: 0, confuseCd: 0, time: 0, bonus: 0, cnt: { coffee: 0, enemies: 0, choc: 0, boss: 0, levels: 0 }, session: null };
 }
 function startLevel(i = 0) {
-  player.idleT = 0; player.asleep = false; player.beamT = 0; player.beamCd = 0; player.superT = 0; player.powerT = 0;
+  player.idleT = 0; player.asleep = false; player.beamT = 0; player.beamCd = 0; player.superT = 0; player.powerT = 0; player.superUsed = false;
   state.level = i; LV = LEVELS[i]; LEVEL_W = LV.width; BOSS_X = LV.bossX; EXIT_X = LV.exitX;
   buildLevel(); shots = []; particles = [];
   player.x = 2 * TILE; player.y = FLOOR * TILE - player.h; player.vx = player.vy = 0; player.dir = 1; player.inv = 0;
@@ -414,8 +414,8 @@ function hurtPlayer() {
 let kTaps = [], codeBuf = '';
 // Versteckt: "ssj" = 15 s verwandelt. Schneller, höherer Sprung, goldene Aura; Gegner bei Berührung erledigt.
 function goSuper() {
-  if (state.mode !== 'play' || player.superT > 0) return;
-  player.superT = 900 + 144; player.powerT = 144; state.shake = 14; // 2,4 s Schrei + 15 s verwandelt
+  if (state.mode !== 'play' || player.superT > 0 || player.superUsed) return; // nur einmal je Level
+  player.superT = 900 + 144; player.powerT = 144; player.superUsed = true; state.shake = 14; // 2,4 s Schrei + 15 s verwandelt
   shout(2.4); // Kampfschrei
   [160, 220, 300, 400].forEach((f, i) => setTimeout(() => beep(f, 0.5, 'sawtooth', 0.05, 150), i * 110));
   for (let i = 0; i < 40; i++) particles.push({ x: player.x + 7, y: player.y + 20, vx: (Math.random() - .5) * 5, vy: -Math.random() * 5, t: 30 + Math.random() * 25, col: Math.random() < .6 ? '#f8e060' : '#fff' });
